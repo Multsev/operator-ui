@@ -17,6 +17,8 @@ DataView provides stable-row selection, Ctrl/Cmd toggle, Shift range, keyboard n
 
 Tree compositions may set `defaultExpansion="roots" | "all" | "none"`. The default remains `roots` for compatibility; applications implement explicit expand/collapse-all commands by remounting with a stable generation key and the requested default. Nested objects must retain occurrence-stable IDs.
 
+Expandable rows toggle on double click by default. Tree/detail applications whose primary object action is open may set `doubleClickBehavior="open"`; the disclosure button and keyboard arrows continue to own expansion.
+
 Provide stable string `id` values. Supply typed columns and a stable `storageKey`. Use an external SelectionModel when commands, inspectors or multiple views need to share selection.
 
 For tree modes, provide `getChildren`. Keep hierarchy in application data; do not create a domain tree component.

@@ -171,6 +171,13 @@ describe("unified DataView", () => {
     render(<DataView rows={rows} columns={nodeColumns} mode="tree-table" getChildren={(row) => row.children} defaultExpansion="none" height={120} storageKey="collapse-all" />);
     expect(screen.queryByText("Child")).not.toBeInTheDocument();
   });
+  it("can route expandable-row double click to the application open command", async () => {
+    const open = vi.fn();
+    const rows: NodeRow[] = [{ id: "root", name: "Root", value: 1, children: [{ id: "child", name: "Child", value: 2 }] }];
+    render(<DataView rows={rows} columns={nodeColumns} mode="tree-table" getChildren={(row) => row.children} doubleClickBehavior="open" onOpen={open} height={120} storageKey="open-expandable" />);
+    await userEvent.dblClick(screen.getByText("Root"));
+    expect(open).toHaveBeenCalledWith(rows[0]);
+  });
   it.each(["table", "list", "tree", "tree-table"] as const)(
     "renders %s mode from one primitive",
     (mode) => {

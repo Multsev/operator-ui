@@ -1,6 +1,6 @@
 # Operator UI manifest
 
-Version: **1.2.0**
+Version: **1.3.0**
 Canonical framework: [`./framework/`](./framework/)
 Canonical TypeScript entry: [`./framework/src/index.ts`](./framework/src/index.ts)
 Canonical tokens: [`./framework/src/tokens/tokens.css`](./framework/src/tokens/tokens.css)

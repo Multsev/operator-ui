@@ -42,6 +42,7 @@ export type DataViewProps<Row extends { id: string }> = {
   selectionModel?: SelectionModel<string>;
   getChildren?: (row: Row) => readonly Row[] | undefined;
   defaultExpansion?: "roots" | "all" | "none";
+  doubleClickBehavior?: "toggle" | "open";
   onOpen?: (row: Row) => void;
   onContextMenu?: (event: MouseEvent, row: Row) => void;
   onSelectionChange?: (rows: Row[]) => void;
@@ -59,6 +60,7 @@ export function DataView<Row extends { id: string }>({
   selectionModel,
   getChildren,
   defaultExpansion = "roots",
+  doubleClickBehavior = "toggle",
   onOpen,
   onContextMenu,
   onSelectionChange,
@@ -398,7 +400,7 @@ export function DataView<Row extends { id: string }>({
                   style={{ gridTemplateColumns: template }}
                   onMouseDown={(event) => select(event, row)}
                   onDoubleClick={() =>
-                    expandable
+                    expandable && doubleClickBehavior === "toggle"
                       ? setExpanded((value) => {
                           const next = new Set(value);
                           next.has(row.id)
