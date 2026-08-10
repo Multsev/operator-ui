@@ -1,5 +1,13 @@
 # Releases
 
+## 1.4.1 — 2026-08-10
+
+- Version: `1.4.1`
+- Release content commit: `2a103a184cd4e3b6f6d926df1ff6075c67501864`
+- Annotated tag: `v1.4.1`
+- Fix: Escape closes a portalled application menu regardless of whether focus remains on its trigger, then restores trigger focus.
+- Verification: build and examples passed; 37 unit and 47 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
+
 ## 1.4.0 — 2026-08-10
 
 - Version: `1.4.0`
