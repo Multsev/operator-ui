@@ -41,6 +41,7 @@ export type DataViewProps<Row extends { id: string }> = {
   hiddenColumnKeys?: readonly (keyof Row & string)[];
   selectionModel?: SelectionModel<string>;
   getChildren?: (row: Row) => readonly Row[] | undefined;
+  defaultExpansion?: "roots" | "all" | "none";
   onOpen?: (row: Row) => void;
   onContextMenu?: (event: MouseEvent, row: Row) => void;
   onSelectionChange?: (rows: Row[]) => void;
@@ -57,6 +58,7 @@ export function DataView<Row extends { id: string }>({
   hiddenColumnKeys,
   selectionModel,
   getChildren,
+  defaultExpansion = "roots",
   onOpen,
   onContextMenu,
   onSelectionChange,
@@ -68,12 +70,18 @@ export function DataView<Row extends { id: string }>({
     selection.getSnapshot,
     selection.getSnapshot,
   );
-  const [expanded, setExpanded] = useState<Set<string>>(
-    () =>
-      new Set(
-        rows.filter((row) => getChildren?.(row)?.length).map((row) => row.id),
-      ),
-  );
+  const [expanded, setExpanded] = useState<Set<string>>(() => {
+    const keys = new Set<string>();
+    if (defaultExpansion === "none") return keys;
+    const visit = (items: readonly Row[], recursive: boolean) => items.forEach((row) => {
+      const children = getChildren?.(row) || [];
+      if (!children.length || keys.has(row.id)) return;
+      keys.add(row.id);
+      if (recursive) visit(children, true);
+    });
+    visit(rows, defaultExpansion === "all");
+    return keys;
+  });
   const [sort, setSort] = useState<SortState<Row>>(() =>
     frameworkPersistence.get(`${storageKey}:sort`, null),
   );

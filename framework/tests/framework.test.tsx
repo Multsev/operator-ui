@@ -161,6 +161,16 @@ const nodeColumns: DataViewColumn<NodeRow>[] = [
   { key: "value", label: "Value", width: 70 },
 ];
 describe("unified DataView", () => {
+  it("can default-expand every nested tree level", () => {
+    const rows: NodeRow[] = [{ id: "root", name: "Root", value: 1, children: [{ id: "child", name: "Child", value: 2, children: [{ id: "grandchild", name: "Grandchild", value: 3 }] }] }];
+    render(<DataView rows={rows} columns={nodeColumns} mode="tree-table" getChildren={(row) => row.children} defaultExpansion="all" height={120} storageKey="expand-all" />);
+    expect(screen.getByText("Grandchild")).toBeVisible();
+  });
+  it("can default-collapse every tree level", () => {
+    const rows: NodeRow[] = [{ id: "root", name: "Root", value: 1, children: [{ id: "child", name: "Child", value: 2 }] }];
+    render(<DataView rows={rows} columns={nodeColumns} mode="tree-table" getChildren={(row) => row.children} defaultExpansion="none" height={120} storageKey="collapse-all" />);
+    expect(screen.queryByText("Child")).not.toBeInTheDocument();
+  });
   it.each(["table", "list", "tree", "tree-table"] as const)(
     "renders %s mode from one primitive",
     (mode) => {

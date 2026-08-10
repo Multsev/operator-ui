@@ -1,5 +1,13 @@
 # Releases
 
+## 1.2.0 — 2026-08-10
+
+- Version: `1.2.0`
+- Release content commit: recorded by the installed repository tag
+- Annotated tag: `v1.2.0`
+- Change: reusable DataView `defaultExpansion` policy (`roots`, `all`, `none`) for deterministic application expand/collapse-all commands across nested trees.
+- Verification: build and examples passed; 33 unit, 45 Playwright interaction/visual/DPI, 6 accessibility, 4 performance and 1 release-artifact test passed.
+
 ## 1.1.0 — 2026-08-10
 
 - Version: `1.1.0`
