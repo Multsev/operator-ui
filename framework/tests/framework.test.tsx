@@ -254,6 +254,15 @@ describe("unified DataView", () => {
     expect(screen.queryByRole("columnheader", { name: "Value" })).not.toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem("ou:filter-columns:hidden-columns") || "[]")).toEqual(["value"]);
   });
+  it("filters collapsed trees recursively while preserving the matching path", () => {
+    const rows: NodeRow[] = [{ id: "root", name: "Projects", value: 1, children: [{ id: "child", name: "WorkBox migration", value: 2 }, { id: "other", name: "Mail", value: 3 }] }];
+    render(<DataView rows={rows} columns={nodeColumns} mode="tree-table" getChildren={(row) => row.children} defaultExpansion="none" filterText="workbox" height={120} storageKey="tree-filter" />);
+    expect(screen.getByText("Projects")).toBeInTheDocument();
+    expect(screen.getByText("WorkBox migration")).toBeInTheDocument();
+    expect(screen.queryByText("Mail")).not.toBeInTheDocument();
+    expect(screen.getByText("Projects").closest('[role="row"]')).toHaveAttribute("aria-level", "1");
+    expect(screen.getByText("WorkBox migration").closest('[role="row"]')).toHaveAttribute("aria-level", "2");
+  });
 });
 
 describe("CalendarGrid and persisted tabs", () => {
@@ -289,6 +298,22 @@ describe("CalendarGrid and persisted tabs", () => {
       />,
     );
     await waitFor(() => expect(change).toHaveBeenCalledWith("two"));
+  });
+  it("moves tabs into overflow according to measured width", async () => {
+    const clientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientWidth");
+    const offsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", { configurable: true, get() { return (this as HTMLElement).classList.contains("ou-core-tabs-wrap") ? 180 : 0; } });
+    Object.defineProperty(HTMLElement.prototype, "offsetWidth", { configurable: true, get() { return (this as HTMLElement).classList.contains("ou-core-tab") ? 80 : 0; } });
+    try {
+      render(<Tabs items={[{ id: "one", label: "One" }, { id: "two", label: "Two" }, { id: "three", label: "Three" }, { id: "four", label: "Four" }]} active="one" onChange={() => undefined} />);
+      const more = await screen.findByRole("button", { name: "More tabs" });
+      await userEvent.click(more);
+      expect(screen.getAllByRole("menuitem")).toHaveLength(3);
+      expect(screen.getByRole("tab", { name: "One" })).toBeVisible();
+    } finally {
+      if (clientWidth) Object.defineProperty(HTMLElement.prototype, "clientWidth", clientWidth); else delete (HTMLElement.prototype as any).clientWidth;
+      if (offsetWidth) Object.defineProperty(HTMLElement.prototype, "offsetWidth", offsetWidth); else delete (HTMLElement.prototype as any).offsetWidth;
+    }
   });
   it("falls back when persistence is invalid", () => {
     localStorage.setItem("safe:value", "not-json");

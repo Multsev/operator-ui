@@ -122,6 +122,13 @@ export function DataView<Row extends { id: string }>({
 
   const visibleRows = useMemo(() => {
     const hierarchical = mode === "tree" || mode === "tree-table";
+    const query = filterText.trim().toLocaleLowerCase();
+    const matches = (row: Row) =>
+      !query || Object.entries(row).some(([key, value]) =>
+        key !== "children" && value != null &&
+        typeof value !== "object" &&
+        String(value).toLocaleLowerCase().includes(query),
+      );
     const sortRows = (items: readonly Row[]) =>
       !sort || hierarchical
         ? [...items]
@@ -133,27 +140,31 @@ export function DataView<Row extends { id: string }>({
                 { numeric: true },
               ) * (sort.direction === "asc" ? 1 : -1),
           );
-    const filteredRows = filterText.trim()
-      ? rows.filter((row) =>
-          Object.values(row).some((value) =>
-            String(value).toLowerCase().includes(filterText.trim().toLowerCase()),
-          ),
-        )
-      : rows;
+    const filteredRows = query ? rows.filter(matches) : rows;
     if (!hierarchical)
       return sortRows(filteredRows).map((row) => ({
         row,
         level: 0,
         expandable: false,
       }));
-    const output: VisibleRow<Row>[] = [];
-    const visit = (items: readonly Row[], level: number) =>
+    const visit = (items: readonly Row[], level: number): VisibleRow<Row>[] => {
+      const output: VisibleRow<Row>[] = [];
       items.forEach((row) => {
         const children = getChildren?.(row) || [];
+        if (query) {
+          const matchingChildren = visit(children, level + 1);
+          if (matches(row) || matchingChildren.length) {
+            output.push({ row, level, expandable: children.length > 0 });
+            output.push(...matchingChildren);
+          }
+          return;
+        }
         output.push({ row, level, expandable: children.length > 0 });
-        if (children.length && expanded.has(row.id)) visit(children, level + 1);
+        if (children.length && expanded.has(row.id)) output.push(...visit(children, level + 1));
       });
-    visit(rows, 0);
+      return output;
+    };
+    const output = visit(rows, 0);
     return output;
   }, [expanded, filterText, getChildren, mode, rows, sort]);
 

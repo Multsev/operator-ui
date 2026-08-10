@@ -1,5 +1,13 @@
 # Releases
 
+## 1.5.0 — 2026-08-10
+
+- Version: `1.5.0`
+- Release content commit: recorded after verification.
+- Annotated tag: `v1.5.0`
+- Change: DataView recursively filters tree descendants while retaining their ancestor path, and Tabs moves items into overflow according to measured available width while keeping the active tab visible.
+- Verification: pending complete release verification.
+
 ## 1.4.3 — 2026-08-10
 
 - Version: `1.4.3`

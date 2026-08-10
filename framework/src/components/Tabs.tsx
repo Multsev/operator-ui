@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { frameworkPersistence } from "../framework";
 
 export type TabItem = {
@@ -31,7 +31,11 @@ export function Tabs({
     : [];
   const [order, setOrder] = useState(initialOrder);
   const [overflow, setOverflow] = useState(false);
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => new Set());
+  const wrapRef = useRef<HTMLDivElement>(null);
   const refs = useRef<Array<HTMLButtonElement | null>>([]);
+  const widths = useRef(new Map<string, number>());
+  const measuredWidth = useRef(-1);
   const restored = useRef(false);
   const ordered = useMemo(() => {
     const byId = new Map(items.map((item) => [item.id, item]));
@@ -40,6 +44,7 @@ export function Tabs({
       ...items.filter((item) => !order.includes(item.id)),
     ] as TabItem[];
   }, [items, order]);
+  const orderSignature = ordered.map((tab) => tab.id).join("\u0000");
   const activate = (id: string) => {
     if (storageKey) frameworkPersistence.set(`${storageKey}:active-tab`, id);
     onChange(id);
@@ -68,8 +73,45 @@ export function Tabs({
       }
     }
   };
+  useLayoutEffect(() => {
+    const measure = (force = false) => {
+      const wrap = wrapRef.current;
+      if (!wrap) return;
+      if (wrap.clientWidth <= 0) return;
+      if (!force && measuredWidth.current === wrap.clientWidth) return;
+      measuredWidth.current = wrap.clientWidth;
+      ordered.forEach((tab, index) => {
+        const width = refs.current[index]?.closest<HTMLElement>(".ou-core-tab")?.offsetWidth;
+        if (width) widths.current.set(tab.id, width);
+      });
+      const natural = ordered.reduce((total, tab) => total + (widths.current.get(tab.id) || 80), 0);
+      if (natural <= wrap.clientWidth) {
+        setHiddenIds((current) => current.size ? new Set() : current);
+        return;
+      }
+      const available = Math.max(0, wrap.clientWidth - 25);
+      const keep = new Set<string>();
+      let used = 0;
+      const activeWidth = ordered.find((tab) => tab.id === active) ? (widths.current.get(active) || 80) : 0;
+      if (activeWidth <= available) { keep.add(active); used = activeWidth; }
+      for (const tab of ordered) {
+        if (keep.has(tab.id)) continue;
+        const width = widths.current.get(tab.id) || 80;
+        if (used + width <= available) { keep.add(tab.id); used += width; }
+      }
+      const next = new Set(ordered.filter((tab) => !keep.has(tab.id)).map((tab) => tab.id));
+      setHiddenIds((current) => current.size === next.size && [...current].every((id) => next.has(id)) ? current : next);
+    };
+    measuredWidth.current = -1;
+    measure(true);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => measure());
+    if (wrapRef.current) observer?.observe(wrapRef.current);
+    const onResize = () => measure();
+    window.addEventListener("resize", onResize);
+    return () => { observer?.disconnect(); window.removeEventListener("resize", onResize); };
+  }, [active, orderSignature]);
   return (
-    <div className="ou-core-tabs-wrap">
+    <div className="ou-core-tabs-wrap" ref={wrapRef}>
       <div
         className="ou-compact-tabs ou-core-tabs"
         role="tablist"
@@ -77,7 +119,7 @@ export function Tabs({
       >
         {ordered.map((tab, index) => (
           <div
-            className="ou-core-tab"
+            className={`ou-core-tab ${hiddenIds.has(tab.id) ? "is-overflow-hidden" : ""}`}
             key={tab.id}
             draggable={reorderable}
             onDragStart={(event) =>
@@ -139,7 +181,7 @@ export function Tabs({
           </div>
         ))}
       </div>
-      {ordered.length > 6 && (
+      {hiddenIds.size > 0 && (
         <div className="ou-tab-overflow">
           <button
             aria-label="More tabs"
@@ -150,7 +192,7 @@ export function Tabs({
           </button>
           {overflow && (
             <div role="menu">
-              {ordered.map((tab) => (
+              {ordered.filter((tab) => hiddenIds.has(tab.id)).map((tab) => (
                 <button
                   key={tab.id}
                   role="menuitem"
