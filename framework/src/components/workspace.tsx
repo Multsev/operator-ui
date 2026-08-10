@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { Dialog, StatusBar, Toolbar } from './shell';
 
 export function MainWindow({ menu, toolbar, children, status }: { menu?: ReactNode; toolbar?: ReactNode; children: ReactNode; status?: ReactNode }) { return <div className="ou-main-window">{menu}{toolbar && <Toolbar>{toolbar}</Toolbar>}<main>{children}</main>{status && <StatusBar>{status}</StatusBar>}</div>; }
@@ -13,13 +14,18 @@ export function Tooltip({ text, children }: { text: string; children: ReactNode 
 export function ContextMenu({ open, x, y, onClose, children }: { open: boolean; x: number; y: number; onClose: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
-  const [position, setPosition] = useState({ left: x, top: y });
+  const [position, setPosition] = useState({ left: x, top: y, maxWidth: window.innerWidth - 6 });
   useLayoutEffect(() => {
     if (!open || !ref.current) return;
     const scale = Number(getComputedStyle(document.documentElement).getPropertyValue('--ou-ui-scale')) || 1;
     const bounds = ref.current.getBoundingClientRect();
-    setPosition({ left: Math.max(3, Math.min(x / scale, window.innerWidth / scale - bounds.width / scale - 3)), top: Math.max(3, Math.min(y / scale, window.innerHeight / scale - bounds.height / scale - 3)) });
-  }, [open, x, y, children]);
+    const next = {
+      left: Math.max(3, Math.min(x, window.innerWidth - bounds.width - 3)),
+      top: Math.max(3, Math.min(y, window.innerHeight - bounds.height - 3)),
+      maxWidth: Math.max(172, (window.innerWidth - 6) / scale),
+    };
+    setPosition((current) => current.left === next.left && current.top === next.top && current.maxWidth === next.maxWidth ? current : next);
+  }, [open, x, y]);
   useEffect(() => {
     if (!open) return;
     previousFocus.current = document.activeElement as HTMLElement;
@@ -27,14 +33,14 @@ export function ContextMenu({ open, x, y, onClose, children }: { open: boolean; 
     const close = () => onClose(); window.addEventListener('pointerdown', close); return () => { window.removeEventListener('pointerdown', close); previousFocus.current?.focus(); };
   }, [open, onClose]);
   if (!open) return null;
-  return <div ref={ref} className="ou-context-menu" role="menu" style={position} onPointerDown={(event) => event.stopPropagation()} onKeyDown={(event) => {
+  return createPortal(<div ref={ref} className="ou-context-menu" role="menu" style={position} onPointerDown={(event) => event.stopPropagation()} onKeyDown={(event) => {
     const items = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')]; const index = items.indexOf(document.activeElement as HTMLButtonElement);
     if (event.key === 'Escape') { event.preventDefault(); onClose(); }
     if (event.key === 'ArrowDown') { event.preventDefault(); items[(index + 1 + items.length) % items.length]?.focus(); }
     if (event.key === 'ArrowUp') { event.preventDefault(); items[(index - 1 + items.length) % items.length]?.focus(); }
     if (event.key === 'Home') { event.preventDefault(); items[0]?.focus(); }
     if (event.key === 'End') { event.preventDefault(); items.at(-1)?.focus(); }
-  }}>{children}</div>;
+  }}>{children}</div>, document.body);
 }
-export function ContextMenuItem({ children, shortcut, onClick, disabled }: { children: ReactNode; shortcut?: string; onClick?: () => void; disabled?: boolean }) { return <button role="menuitem" disabled={disabled} onClick={onClick}><span>{children}</span>{shortcut && <kbd>{shortcut}</kbd>}</button>; }
+export function ContextMenuItem({ children, shortcut, onClick, disabled }: { children: ReactNode; shortcut?: string; onClick?: () => void; disabled?: boolean }) { return <button role="menuitem" disabled={disabled} onClick={onClick}><span className="ou-menu-check" /><span>{children}</span>{shortcut && <kbd>{shortcut}</kbd>}</button>; }
 export function ContextMenuSeparator() { return <div role="separator" />; }

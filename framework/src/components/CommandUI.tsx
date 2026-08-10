@@ -126,7 +126,7 @@ export function CommandMenuItem<Context extends CommandContext>({
         onExecuted?.();
       }}
     >
-      <span>{command.checked?.(context) ? "✓" : ""}</span>
+      <span className="ou-menu-check">{command.checked?.(context) ? "✓" : ""}</span>
       <span>{command.title}</span>
       {command.shortcut && <kbd>{command.shortcut}</kbd>}
     </button>
