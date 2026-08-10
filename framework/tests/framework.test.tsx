@@ -107,6 +107,12 @@ describe("CommandRegistry", () => {
     await userEvent.click(screen.getByRole("menuitem", { name: /Refresh objects/ }));
     expect(execute).toHaveBeenCalledOnce();
   });
+  it("renders a distinct external-link command icon", () => {
+    const registry = new CommandRegistry();
+    registry.register({ id: "open", title: "Open externally", icon: "external", execute: vi.fn() });
+    const { container } = render(<CommandToolbar registry={registry} commandIds={["open"]} context={{}} />);
+    expect(container.querySelector(".lucide-external-link")).toBeInTheDocument();
+  });
 });
 
 describe("AsyncTask and DataSource", () => {
@@ -177,6 +183,17 @@ describe("unified DataView", () => {
     render(<DataView rows={rows} columns={nodeColumns} mode="tree-table" getChildren={(row) => row.children} doubleClickBehavior="open" onOpen={open} height={120} storageKey="open-expandable" />);
     await userEvent.dblClick(screen.getByText("Root"));
     expect(open).toHaveBeenCalledWith(rows[0]);
+  });
+  it("uses compact capped indentation and chevrons for deep trees", () => {
+    let branch: NodeRow = { id: "level-7", name: "Level 7", value: 7 };
+    for (let level = 6; level >= 0; level--) branch = { id: `level-${level}`, name: `Level ${level}`, value: level, children: [branch] };
+    render(<DataView rows={[branch]} columns={nodeColumns} mode="tree-table" getChildren={(row) => row.children} defaultExpansion="all" height={220} storageKey="compact-tree" />);
+    const deepestCell = screen.getByText("Level 7").closest<HTMLElement>('[role="gridcell"]');
+    expect(deepestCell).toHaveStyle({ paddingLeft: "43px" });
+    const toggle = screen.getByRole("button", { name: "Collapse Level 0" });
+    expect(toggle).toHaveClass("is-expanded");
+    expect(toggle.querySelector("svg")).toBeInTheDocument();
+    expect(toggle).not.toHaveTextContent(/[+−]/);
   });
   it.each(["table", "list", "tree", "tree-table"] as const)(
     "renders %s mode from one primitive",
@@ -286,6 +303,19 @@ describe("CalendarGrid and persisted tabs", () => {
 });
 
 describe("nested desktop menus", () => {
+  it("portals a popup outside clipped MDI content and restores trigger focus", async () => {
+    const action = vi.fn();
+    const { container } = render(<div style={{ overflow: "hidden", height: 24 }}><Menu label="Clipped actions" items={[{ label: "Run action", action }]} /></div>);
+    const trigger = screen.getByRole("button", { name: "Clipped actions" });
+    await userEvent.click(trigger);
+    const menu = screen.getByRole("menu");
+    expect(menu).toHaveClass("ou-floating-menu");
+    expect(container.contains(menu)).toBe(false);
+    expect(menu.parentElement).toBe(document.body);
+    await userEvent.click(screen.getByRole("menuitem", { name: "Run action" }));
+    expect(action).toHaveBeenCalledOnce();
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
   it("opens a submenu with ArrowRight and returns with ArrowLeft", async () => {
     render(<Menu label="Folders" items={[{ type: "submenu", label: "Account", items: [{ label: "Inbox" }, { label: "Archive" }] }]} />);
     await userEvent.click(screen.getByRole("button", { name: "Folders" }));

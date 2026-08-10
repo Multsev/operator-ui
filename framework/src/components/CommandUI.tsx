@@ -1,6 +1,7 @@
 import {
   Check,
   Copy,
+  ExternalLink,
   Filter,
   MessageSquareText,
   Minus,
@@ -26,6 +27,7 @@ const icons: Record<string, LucideIcon> = {
   refresh: RefreshCw,
   search: Search,
   copy: Copy,
+  external: ExternalLink,
 };
 
 export function CommandButton<Context extends CommandContext>({

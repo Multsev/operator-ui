@@ -21,7 +21,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 
 .ou-menubar { height: var(--ou-menubar-height); display: flex; align-items: stretch; border-bottom: 1px solid var(--ou-border); background: var(--ou-panel-bg); padding-left: 2px; }
 .ou-menu-item { border: 0; background: transparent; padding: 0 8px; }.ou-menu-item:hover, .ou-menu-item:focus-visible { background: var(--ou-control-hover); }
-.ou-app-menu { position: relative; z-index: 10000; display: flex; }.ou-app-menu > .ou-menu-item.is-open { background: var(--ou-selection); }.ou-app-menu > [role='menu'] { position: absolute; z-index: 1; top: 100%; left: 0; width: 210px; padding: 3px; border: 1px solid var(--ou-border-strong); background: var(--ou-control-bg); box-shadow: 2px 3px 8px var(--ou-shadow); }.ou-app-menu > [role='menu'] button { width: 100%; height: 23px; display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 3px; border: 0; padding: 0 6px 0 3px; background: transparent; text-align: left; }.ou-app-menu > [role='menu'] button:hover:not(:disabled), .ou-app-menu > [role='menu'] button:focus-visible { background: var(--ou-selection); }.ou-app-menu > [role='menu'] button:disabled { color: var(--ou-text-disabled); }.ou-app-menu kbd { color: var(--ou-text-secondary); font: inherit; }.ou-app-menu [role='separator'] { height: 1px; margin: 3px 2px; background: var(--ou-border); }.ou-menu-check { width: 12px; text-align: center; }
+.ou-app-menu { position: relative; display: flex; }.ou-app-menu > .ou-menu-item.is-open { background: var(--ou-selection); }.ou-floating-menu { position: fixed; z-index: 30000; width: 210px; padding: 3px; border: 1px solid var(--ou-border-strong); background: var(--ou-control-bg); box-shadow: 2px 3px 8px var(--ou-shadow); transform: scale(var(--ou-ui-scale)); transform-origin: top left; }.ou-floating-menu button { width: 100%; height: 23px; display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 3px; border: 0; padding: 0 6px 0 3px; background: transparent; text-align: left; }.ou-floating-menu button:hover:not(:disabled), .ou-floating-menu button:focus-visible { background: var(--ou-selection); }.ou-floating-menu button:disabled { color: var(--ou-text-disabled); }.ou-floating-menu kbd { color: var(--ou-text-secondary); font: inherit; }.ou-floating-menu [role='separator'] { height: 1px; margin: 3px 2px; background: var(--ou-border); }.ou-menu-check { width: 12px; text-align: center; }
 .ou-toolbar { min-height: var(--ou-toolbar-height); display: flex; align-items: center; gap: 3px; padding: 2px 4px; border-bottom: 1px solid var(--ou-border-strong); background: var(--ou-panel-bg); overflow: hidden; white-space: nowrap; }
 .ou-toolbar-separator { width: 1px; height: 20px; margin: 0 2px; background: var(--ou-border); }.ou-toolbar-spacer { flex: 1; }
 .ou-statusbar { height: var(--ou-statusbar-height); display: flex; align-items: center; background: var(--ou-panel-bg); border-top: 1px solid var(--ou-border-strong); overflow: hidden; }
@@ -116,7 +116,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 .ou-data-view[data-mode='list'] .ou-grid-header { display: none; }
 .ou-data-view[data-mode='list'] .ou-grid-viewport { height: 100% !important; }
 .ou-tree-cell { display: flex; align-items: center; padding-top: 0 !important; }
-.ou-tree-toggle { width: 14px; height: 18px; flex: none; display: grid; place-items: center; margin-right: 2px; padding: 0; border: 0; background: transparent; }
+.ou-tree-toggle { width: 12px; height: 18px; flex: none; display: grid; place-items: center; margin-right: 2px; padding: 0; border: 0; background: transparent; }
+.ou-tree-toggle .ou-icon { width: 9px; height: 9px; transition: transform .08s linear; }
+.ou-tree-toggle.is-expanded .ou-icon { transform: rotate(90deg); }
 .ou-tree-toggle:disabled { color: transparent; }
 
 .ou-core-tabs-wrap { min-width: 0; display: flex; border-bottom: 1px solid var(--ou-border-strong); background: var(--ou-window-chrome); }
@@ -165,6 +167,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 .ou-validation-pattern > .ou-split-view, .ou-validation-pattern > .ou-grid-frame { min-height: 0; }
 .ou-validation-pattern > .ou-local-toolbar > button { height: 22px; min-width: 24px; border: 1px solid var(--ou-border); background: var(--ou-control-bg); }
 
-.ou-app-menu .ou-submenu { position: relative; }
-.ou-app-menu .ou-submenu > [role='menu'] { display: none; position: absolute; z-index: 2; top: -4px; left: calc(100% - 2px); width: 190px; padding: 3px; border: 1px solid var(--ou-border-strong); background: var(--ou-control-bg); box-shadow: 2px 3px 8px var(--ou-shadow); }
-.ou-app-menu .ou-submenu:hover > [role='menu'], .ou-app-menu .ou-submenu:focus-within > [role='menu'] { display: block; }
+.ou-floating-menu .ou-submenu { position: relative; }
+.ou-floating-menu .ou-submenu > [role='menu'] { display: none; position: absolute; z-index: 2; top: -4px; left: calc(100% - 2px); width: 190px; padding: 3px; border: 1px solid var(--ou-border-strong); background: var(--ou-control-bg); box-shadow: 2px 3px 8px var(--ou-shadow); }
+.ou-floating-menu .ou-submenu:hover > [role='menu'], .ou-floating-menu .ou-submenu:focus-within > [role='menu'] { display: block; }

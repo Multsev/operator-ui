@@ -26,6 +26,26 @@ test('Window menu lays out, activates and closes child windows', async ({ page }
   await page.getByRole('complementary', { name: 'Tools' }).getByRole('button', { name: 'Terminal', exact: true }).click(); await expect(page.getByRole('region', { name: 'Terminal' })).toBeVisible();
 });
 
+test('a menu opened inside clipped MDI content is portalled above the workspace', async ({ page }) => {
+  await page.goto('/?freeze=1');
+  await page.getByRole('button', { name: 'View' }).click();
+  await page.getByRole('menuitem', { name: 'UI Gallery — Developer' }).click();
+  const gallery = page.getByRole('region', { name: 'UI Gallery — Developer' });
+  await gallery.getByRole('button', { name: 'Object' }).click();
+  const popup = page.getByRole('menu').filter({ has: page.getByRole('menuitem', { name: 'Add' }) });
+  await expect(popup).toBeVisible();
+  expect(await popup.evaluate((element) => element.parentElement === document.body)).toBe(true);
+  expect(Number(await popup.evaluate((element) => getComputedStyle(element).zIndex))).toBeGreaterThan(20_000);
+  const box = await popup.boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(await page.evaluate(() => window.innerWidth));
+  expect(box!.y + box!.height).toBeLessThanOrEqual(await page.evaluate(() => window.innerHeight));
+  await page.getByRole('menuitem', { name: 'Add' }).click();
+  await expect(popup).toBeHidden();
+  await expect(gallery.getByRole('button', { name: 'Object' })).toBeFocused();
+});
+
 test('child window moves, resizes to its minimum and persists', async ({ page }) => {
   await page.goto('/?freeze=1'); await page.getByRole('complementary', { name: 'Tools' }).getByRole('button', { name: /Routes/ }).click();
   const win = page.getByRole('region', { name: 'Route List' }); const before = await win.boundingBox(); if (!before) throw new Error('missing window');

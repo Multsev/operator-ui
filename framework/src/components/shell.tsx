@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "./controls";
 import { Tabs as CoreTabs } from "./Tabs";
 
@@ -56,28 +57,69 @@ function MenuEntries({ items, close }: { items: MenuEntry[]; close: () => void }
 }
 export function Menu({ label, items }: { label: string; items: MenuEntry[] }) {
   const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState({ left: 4, top: 4 });
   const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const popup = useRef<HTMLDivElement>(null);
+  const placePopup = useCallback(() => {
+    const rect = trigger.current?.getBoundingClientRect();
+    if (!rect) return;
+    const scale = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--ou-ui-scale")) || 1;
+    const width = 210 * scale;
+    const measuredHeight = popup.current?.getBoundingClientRect().height;
+    const estimatedHeight = Math.min(420, (items.length * 23 + 6) * scale);
+    const height = measuredHeight || estimatedHeight;
+    const left = Math.max(4, Math.min(rect.left, window.innerWidth - width - 4));
+    const below = rect.bottom;
+    const top = below + height <= window.innerHeight - 4
+      ? below
+      : Math.max(4, rect.top - height);
+    setPosition((current) =>
+      current.left === left && current.top === top ? current : { left, top },
+    );
+  }, [items.length]);
+  const closeMenu = useCallback((restoreFocus = false) => {
+    setOpen(false);
+    if (restoreFocus) requestAnimationFrame(() => trigger.current?.focus());
+  }, []);
   useEffect(() => {
     if (!open) return;
     const close = (event: PointerEvent) => {
-      if (!root.current?.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (!root.current?.contains(target) && !popup.current?.contains(target)) closeMenu();
     };
     window.addEventListener("pointerdown", close);
     return () => window.removeEventListener("pointerdown", close);
-  }, [open]);
+  }, [closeMenu, open]);
+  useLayoutEffect(() => {
+    if (!open) return;
+    placePopup();
+    const reposition = () => placePopup();
+    window.addEventListener("resize", reposition);
+    window.addEventListener("scroll", reposition, true);
+    return () => {
+      window.removeEventListener("resize", reposition);
+      window.removeEventListener("scroll", reposition, true);
+    };
+  }, [open, placePopup]);
   return (
     <div ref={root} className="ou-app-menu">
       <button
+        ref={trigger}
         className={`ou-menu-item ${open ? "is-open" : ""}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          if (open) closeMenu();
+          else { placePopup(); setOpen(true); }
+        }}
         onKeyDown={(event) => {
           if (event.key === "ArrowDown") {
             event.preventDefault();
+            placePopup();
             setOpen(true);
             requestAnimationFrame(() =>
-              root.current
+              popup.current
                 ?.querySelector<HTMLButtonElement>('[role^="menuitem"]')
                 ?.focus(),
             );
@@ -86,9 +128,12 @@ export function Menu({ label, items }: { label: string; items: MenuEntry[] }) {
       >
         {label}
       </button>
-      {open && (
+      {open && createPortal(
         <div
+          ref={popup}
+          className="ou-floating-menu"
           role="menu"
+          style={{ left: position.left, top: position.top }}
           onKeyDown={(event) => {
             const entries = [
               ...event.currentTarget.querySelectorAll<HTMLButtonElement>(
@@ -99,10 +144,7 @@ export function Menu({ label, items }: { label: string; items: MenuEntry[] }) {
               document.activeElement as HTMLButtonElement,
             );
             if (event.key === "Escape") {
-              setOpen(false);
-              root.current
-                ?.querySelector<HTMLButtonElement>(".ou-menu-item")
-                ?.focus();
+              closeMenu(true);
             }
             if (event.key === "ArrowDown") {
               event.preventDefault();
@@ -122,8 +164,9 @@ export function Menu({ label, items }: { label: string; items: MenuEntry[] }) {
             }
           }}
         >
-          <MenuEntries items={items} close={() => setOpen(false)} />
-        </div>
+          <MenuEntries items={items} close={() => closeMenu(true)} />
+        </div>,
+        document.body,
       )}
     </div>
   );

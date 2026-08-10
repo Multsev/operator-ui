@@ -8,6 +8,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
+import { Icon } from "./Icon";
 import {
   frameworkPersistence,
   SelectionModel,
@@ -29,6 +30,10 @@ type SortState<Row> = {
   direction: "asc" | "desc";
 } | null;
 type VisibleRow<Row> = { row: Row; level: number; expandable: boolean };
+
+const TREE_BASE_INDENT = 3;
+const TREE_LEVEL_INDENT = 8;
+const TREE_MAX_VISUAL_LEVEL = 5;
 
 export type DataViewProps<Row extends { id: string }> = {
   rows: readonly Row[];
@@ -423,13 +428,13 @@ export function DataView<Row extends { id: string }>({
                       className={`${column.align === "right" ? "is-right" : ""} ${columnIndex === 0 && mode.startsWith("tree") ? "ou-tree-cell" : ""}`}
                       style={
                         columnIndex === 0 && mode.startsWith("tree")
-                          ? { paddingLeft: 5 + level * 14 }
+                          ? { paddingLeft: TREE_BASE_INDENT + Math.min(level, TREE_MAX_VISUAL_LEVEL) * TREE_LEVEL_INDENT }
                           : undefined
                       }
                     >
                       {columnIndex === 0 && mode.startsWith("tree") && (
                         <button
-                          className="ou-tree-toggle"
+                          className={`ou-tree-toggle ${expanded.has(row.id) ? "is-expanded" : ""}`}
                           tabIndex={-1}
                           aria-label={`${expanded.has(row.id) ? "Collapse" : "Expand"} ${String(row[column.key])}`}
                           disabled={!expandable}
@@ -444,7 +449,7 @@ export function DataView<Row extends { id: string }>({
                             });
                           }}
                         >
-                          {expandable ? (expanded.has(row.id) ? "−" : "+") : ""}
+                          {expandable && <Icon name="chevron" />}
                         </button>
                       )}
                       {column.render
