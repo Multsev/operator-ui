@@ -1,5 +1,13 @@
 # Releases
 
+## 1.4.3 — 2026-08-10
+
+- Version: `1.4.3`
+- Release content commit: `997cc913e24f3a2ae8771b7aa581146c7bd5e41d`
+- Annotated tag: `v1.4.3`
+- Fix: context-menu command titles retain a measured visual gap before keyboard shortcuts at large interface fonts.
+- Verification: build and examples passed; 37 unit and 47 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
+
 ## 1.4.2 — 2026-08-10
 
 - Version: `1.4.2`
