@@ -3,7 +3,7 @@
 ## 1.0.0 — 2026-08-10
 
 - Version: `1.0.0`
-- Release content commit: recorded during the release procedure
+- Release content commit: `739d5e2dbb8146926b8e8d71b3cf83d4f9b4587f`
 - Annotated tag: `v1.0.0`
 - Build: passed
 - Examples type-check: passed
