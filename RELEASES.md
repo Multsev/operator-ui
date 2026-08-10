@@ -1,5 +1,13 @@
 # Releases
 
+## 1.4.2 — 2026-08-10
+
+- Version: `1.4.2`
+- Release content commit: `0b65cadcdd3c41a8e2ab6f49d462340dcdef22b6`
+- Annotated tag: `v1.4.2`
+- Fix: context menus are portalled above MDI windows, size to their content, preserve one-line command labels at larger interface fonts, clamp under UI scaling, and align checks/titles/shortcuts consistently.
+- Verification: build and examples passed; 37 unit and 47 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
+
 ## 1.4.1 — 2026-08-10
 
 - Version: `1.4.1`
