@@ -16,6 +16,7 @@ test('DataGrid context menu selects target, clamps and restores keyboard focus',
   await row.click({ button: 'right', position: { x: 100, y: 10 } }); const menu = page.getByRole('menu'); await expect(menu).toBeVisible(); await expect(row).toHaveAttribute('aria-selected', 'true');
   expect(await menu.evaluate((element) => element.parentElement === document.body)).toBe(true);
   await expect(menu.getByRole('menuitem', { name: 'Export selection…' }).locator('span').nth(1)).toHaveCSS('white-space', 'nowrap');
+  const copyItem = menu.getByRole('menuitem', { name: /Copy selected/ }); const copyTitle = await copyItem.locator('span').nth(1).boundingBox(); const copyShortcut = await copyItem.locator('kbd').boundingBox(); expect(copyShortcut!.x - (copyTitle!.x + copyTitle!.width)).toBeGreaterThanOrEqual(6);
   const box = await menu.boundingBox(); expect(box!.x).toBeGreaterThanOrEqual(0); expect(box!.y).toBeGreaterThanOrEqual(0);
   await expect(menu.getByRole('menuitem', { name: 'Export selection…' })).toBeDisabled(); await page.keyboard.press('End'); await page.keyboard.press('Escape'); await expect(menu).toBeHidden();
   await row.click({ button: 'right', position: { x: 100, y: 10 } }); await page.getByRole('menuitem', { name: 'Disable' }).click(); await expect(menu).toBeHidden();
