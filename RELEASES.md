@@ -3,10 +3,10 @@
 ## 1.3.0 — 2026-08-10
 
 - Version: `1.3.0`
-- Release content commit: recorded by the installed repository tag
+- Release content commit: `ad5870f08bb030f0f3b64c6983cb2c78506e9ecc`
 - Annotated tag: `v1.3.0`
 - Change: reusable DataView double-click policy for tree/detail applications that open expandable objects while keeping disclosure controls for expansion.
-- Verification: complete suite required before tag.
+- Verification: build and examples passed; 34 unit, 45 Playwright interaction/visual/DPI, 6 accessibility, 4 performance and 1 release-artifact test passed.
 
 ## 1.2.0 — 2026-08-10
 
