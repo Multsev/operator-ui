@@ -1,0 +1,4 @@
+interface:
+  display_name: "Operator UI"
+  short_description: "Build dense professional desktop interfaces"
+  default_prompt: "Use $operator-ui to build a compact desktop application from the bundled canonical framework."

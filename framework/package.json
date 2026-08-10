@@ -1,0 +1,43 @@
+{
+  "name": "@operator-ui/framework",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens/tokens.css",
+    "./styles.css": "./src/styles/index.css"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:examples": "tsc -p ../examples/tsconfig.json",
+    "test:visual": "playwright test",
+    "test:visual:update": "playwright test --update-snapshots",
+    "test:release-artifacts": "playwright test tests/e2e/release-artifacts.spec.ts --project=release-artifacts",
+    "test:a11y": "playwright test tests/e2e/accessibility.spec.ts",
+    "benchmark": "playwright test tests/e2e/performance.spec.ts",
+    "verify": "npm run build && npm run test:examples && npm test && npm run test:visual"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "lucide-react": "^1.31.0",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@playwright/test": "latest",
+    "@testing-library/jest-dom": "latest",
+    "@testing-library/react": "latest",
+    "@testing-library/user-event": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "jsdom": "26.1.0",
+    "vitest": "latest"
+  }
+}

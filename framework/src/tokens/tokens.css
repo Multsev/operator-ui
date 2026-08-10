@@ -1,0 +1,108 @@
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+  --ou-window-bg: #dfe3e6;
+  --ou-panel-bg: #f3f5f6;
+  --ou-control-bg: #ffffff;
+  --ou-control-hover: #e8f2fb;
+  --ou-control-pressed: #d3e6f7;
+  --ou-control-disabled: #e7e9ea;
+  --ou-border: #aab1b7;
+  --ou-border-strong: #6f7880;
+  --ou-text: #172027;
+  --ou-text-secondary: #4e5a63;
+  --ou-text-disabled: #858d93;
+  --ou-selection: #c9e5fb;
+  --ou-selection-inactive: #dfe5e9;
+  --ou-selection-strong: #1473b8;
+  --ou-focus: #006fc4;
+  --ou-success: #277a3d;
+  --ou-warning: #a05a00;
+  --ou-danger: #b42318;
+  --ou-info: #0969a8;
+  --ou-shadow: rgba(18, 27, 33, 0.24);
+  --ou-grid-line: #d8dde0;
+  --ou-row-alt: #f8f9fa;
+  --ou-workspace-canvas: #a0a0a0;
+  --ou-window-chrome: #f0f0f0;
+  --ou-window-title-active: #315f91;
+  --ou-window-title-inactive: #c0c0c0;
+  --ou-table-header: #d8d8d8;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --ou-window-bg: #20262b;
+  --ou-panel-bg: #2b3238;
+  --ou-control-bg: #171c20;
+  --ou-control-hover: #293f50;
+  --ou-control-pressed: #334e61;
+  --ou-control-disabled: #30363b;
+  --ou-border: #505b64;
+  --ou-border-strong: #7a8791;
+  --ou-text: #edf1f3;
+  --ou-text-secondary: #bac3c9;
+  --ou-text-disabled: #7f8a92;
+  --ou-selection: #164f78;
+  --ou-selection-inactive: #3b454c;
+  --ou-selection-strong: #46a7ea;
+  --ou-focus: #57b5f5;
+  --ou-success: #58b86b;
+  --ou-warning: #f0ae45;
+  --ou-danger: #f1766d;
+  --ou-info: #67bbed;
+  --ou-shadow: rgba(0, 0, 0, 0.55);
+  --ou-grid-line: #3e474e;
+  --ou-row-alt: #1c2227;
+  --ou-workspace-canvas: #3b3f42;
+  --ou-window-chrome: #2d3236;
+  --ou-window-title-active: #2d628f;
+  --ou-window-title-inactive: #4b5258;
+  --ou-table-header: #3e454a;
+}
+
+:root {
+  --ou-ui-scale: 1;
+  --ou-space-1: 2px;
+  --ou-space-2: 4px;
+  --ou-space-3: 6px;
+  --ou-space-4: 8px;
+  --ou-space-5: 12px;
+  --ou-space-6: 16px;
+  --ou-control-20: 20px;
+  --ou-control-22: 22px;
+  --ou-control-24: 24px;
+  --ou-control-26: 26px;
+  --ou-control-28: 28px;
+  --ou-control-32: 32px;
+  --ou-icon-12: 12px;
+  --ou-icon-16: 16px;
+  --ou-icon-20: 20px;
+  --ou-icon-24: 24px;
+  --ou-radius-0: 0;
+  --ou-radius-1: 1px;
+  --ou-radius-2: 2px;
+  --ou-radius-4: 4px;
+  --ou-font-ui: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+  --ou-font-mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  --ou-font-size: 12px;
+  --ou-font-small: 11px;
+  --ou-font-title: 13px;
+  --ou-line-height: 1.25;
+  --ou-row-height: 20px;
+  --ou-toolbar-height: 30px;
+  --ou-menubar-height: 24px;
+  --ou-statusbar-height: 22px;
+  --ou-window-title-height: 24px;
+  --ou-local-toolbar-height: 28px;
+  --ou-compact-control-height: 22px;
+  --ou-window-border-width: 1px;
+  --ou-mdi-cascade-step: 26px;
+  /* Stable semantic aliases: components consume roles, never source-theme hex values. */
+  --ou-app-bg: var(--ou-window-bg);
+  --ou-toolbar-bg: var(--ou-window-chrome);
+  --ou-field-bg: var(--ou-control-bg);
+  --ou-grid-header-bg: var(--ou-table-header);
+  --ou-active-title-bg: var(--ou-window-title-active);
+  --ou-inactive-title-bg: var(--ou-window-title-inactive);
+}
