@@ -3,7 +3,7 @@
 ## 1.1.0 — 2026-08-10
 
 - Version: `1.1.0`
-- Release content commit: recorded during the release procedure
+- Release content commit: `6a2f67f17f79bcc1c39f5a77854e3eb896a19dde`
 - Annotated tag: `v1.1.0`
 - Change: application-defined MDI tool registries, initial windows and isolated persistence keys, while preserving the no-argument 1.0 demo behavior.
 - Verification: build and examples passed; 31 unit, 45 Playwright interaction/visual/DPI, 6 accessibility, 4 performance and 1 release-artifact test passed.
