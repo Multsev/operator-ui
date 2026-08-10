@@ -168,18 +168,41 @@ export function DataView<Row extends { id: string }>({
     return output;
   }, [expanded, filterText, getChildren, mode, rows, sort]);
 
-  const keys = useMemo(
+  const allRows = useMemo(() => {
+    const hierarchical = mode === "tree" || mode === "tree-table";
+    if (!hierarchical) return rows.map((row) => ({ row, level: 0, expandable: false }));
+    const visit = (items: readonly Row[], level: number): VisibleRow<Row>[] =>
+      items.flatMap((row) => {
+        const children = getChildren?.(row) || [];
+        return [
+          { row, level, expandable: children.length > 0 },
+          ...visit(children, level + 1),
+        ];
+      });
+    return visit(rows, 0);
+  }, [getChildren, mode, rows]);
+  const allRowsById = useMemo(
+    () => new Map(allRows.map(({ row }) => [row.id, row])),
+    [allRows],
+  );
+  const allKeys = useMemo(
+    () => allRows.map(({ row }) => row.id),
+    [allRows],
+  );
+  const visibleKeys = useMemo(
     () => visibleRows.map(({ row }) => row.id),
     [visibleRows],
   );
-  useEffect(() => selection.reconcile(keys), [keys, selection]);
+  // Collapsing or filtering only hides a row. Reconcile against the complete
+  // data tree so a hidden active object remains available to its inspector.
+  useEffect(() => selection.reconcile(allKeys), [allKeys, selection]);
   useEffect(() => {
     onSelectionChange?.(
-      visibleRows
-        .filter(({ row }) => selectionState.selected.has(row.id))
-        .map(({ row }) => row),
+      [...selectionState.selected]
+        .map((key) => allRowsById.get(key))
+        .filter((row): row is Row => Boolean(row)),
     );
-  }, [onSelectionChange, selectionState.selected, visibleRows]);
+  }, [allRowsById, onSelectionChange, selectionState.selected]);
   useEffect(() => {
     frameworkPersistence.set(`${storageKey}:sort`, sort);
   }, [sort, storageKey]);
@@ -194,9 +217,8 @@ export function DataView<Row extends { id: string }>({
       frameworkPersistence.set(`${storageKey}:hidden-columns`, hiddenColumnKeys);
   }, [hiddenColumnKeys, storageKey]);
 
-  const activeIndex = Math.max(
-    0,
-    visibleRows.findIndex(({ row }) => row.id === selectionState.active),
+  const activeIndex = visibleRows.findIndex(
+    ({ row }) => row.id === selectionState.active,
   );
   const start = Math.max(0, Math.floor(scroll.top / rowHeight) - 5);
   const count = Math.ceil(height / rowHeight) + 10;
@@ -205,13 +227,13 @@ export function DataView<Row extends { id: string }>({
     .map((column) => `${widths[column.key] || column.width}px`)
     .join(" ");
   const select = (event: MouseEvent | KeyboardEvent, row: Row) =>
-    selection.select(row.id, keys, selectionIntent(event));
+    selection.select(row.id, visibleKeys, selectionIntent(event));
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (!visibleRows.length) return;
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "a") {
       event.preventDefault();
-      selection.selectAll(keys);
+      selection.selectAll(visibleKeys);
       return;
     }
     if (
@@ -231,21 +253,21 @@ export function DataView<Row extends { id: string }>({
       event.preventDefault();
       return;
     }
-    const current = visibleRows[activeIndex];
+    const current = activeIndex >= 0 ? visibleRows[activeIndex] : undefined;
     let next = activeIndex;
-    if (event.key === "ArrowDown") next++;
-    else if (event.key === "ArrowUp") next--;
+    if (event.key === "ArrowDown") next = activeIndex < 0 ? 0 : activeIndex + 1;
+    else if (event.key === "ArrowUp") next = activeIndex < 0 ? visibleRows.length - 1 : activeIndex - 1;
     else if (event.key === "Home") next = 0;
     else if (event.key === "End") next = visibleRows.length - 1;
-    else if (event.key === "PageDown") next += Math.floor(height / rowHeight);
-    else if (event.key === "PageUp") next -= Math.floor(height / rowHeight);
+    else if (event.key === "PageDown") next = activeIndex < 0 ? 0 : activeIndex + Math.floor(height / rowHeight);
+    else if (event.key === "PageUp") next = activeIndex < 0 ? visibleRows.length - 1 : activeIndex - Math.floor(height / rowHeight);
     else if (event.key === "Enter") {
-      onOpen?.(current.row);
+      if (current) onOpen?.(current.row);
       return;
     } else if (
       (mode === "tree" || mode === "tree-table") &&
       event.key === "ArrowRight" &&
-      current.expandable
+      current?.expandable
     ) {
       event.preventDefault();
       setExpanded((value) => new Set(value).add(current.row.id));
@@ -253,7 +275,7 @@ export function DataView<Row extends { id: string }>({
     } else if (
       (mode === "tree" || mode === "tree-table") &&
       event.key === "ArrowLeft" &&
-      current.expandable
+      current?.expandable
     ) {
       event.preventDefault();
       setExpanded((value) => {
@@ -265,7 +287,7 @@ export function DataView<Row extends { id: string }>({
     } else return;
     event.preventDefault();
     next = Math.max(0, Math.min(visibleRows.length - 1, next));
-    selection.select(visibleRows[next].row.id, keys, { range: event.shiftKey });
+    selection.select(visibleRows[next].row.id, visibleKeys, { range: event.shiftKey });
     const target = viewport.current;
     const top = Math.max(0, next * rowHeight - height / 2);
     if (target?.scrollTo) target.scrollTo({ top });
@@ -449,6 +471,8 @@ export function DataView<Row extends { id: string }>({
                           tabIndex={-1}
                           aria-label={`${expanded.has(row.id) ? "Collapse" : "Expand"} ${String(row[column.key])}`}
                           disabled={!expandable}
+                          onMouseDown={(event) => event.stopPropagation()}
+                          onPointerDown={(event) => event.stopPropagation()}
                           onClick={(event) => {
                             event.stopPropagation();
                             setExpanded((value) => {

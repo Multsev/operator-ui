@@ -1,5 +1,13 @@
 # Releases
 
+## 1.5.1 — 2026-08-10
+
+- Version: `1.5.1`
+- Release content commit: pending
+- Annotated tag: `v1.5.1`
+- Fix: DataView disclosure controls no longer select their row on pointer press, and collapsing or filtering a tree preserves selection of hidden descendants for detail inspectors.
+- Verification: pending.
+
 ## 1.5.0 — 2026-08-10
 
 - Version: `1.5.0`

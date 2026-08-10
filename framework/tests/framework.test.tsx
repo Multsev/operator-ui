@@ -195,6 +195,28 @@ describe("unified DataView", () => {
     expect(toggle.querySelector("svg")).toBeInTheDocument();
     expect(toggle).not.toHaveTextContent(/[+−]/);
   });
+  it("does not select an ancestor when its disclosure button is pressed", () => {
+    const selection = new SelectionModel<string>();
+    const rows: NodeRow[] = [{ id: "root", name: "Filter", value: 1, children: [{ id: "child", name: "Issue", value: 2 }] }];
+    selection.select("child", ["root", "child"]);
+    render(<DataView rows={rows} columns={nodeColumns} mode="tree-table" getChildren={(row) => row.children} selectionModel={selection} height={120} storageKey="disclosure-selection" />);
+    fireEvent.mouseDown(screen.getByRole("button", { name: "Collapse Filter" }));
+    fireEvent.click(screen.getByRole("button", { name: "Collapse Filter" }));
+    expect(selection.isSelected("child")).toBe(true);
+    expect(selection.isSelected("root")).toBe(false);
+  });
+  it("keeps a collapsed descendant selected and available to its inspector", () => {
+    const selection = new SelectionModel<string>();
+    const changed = vi.fn();
+    const rows: NodeRow[] = [{ id: "root", name: "Filter", value: 1, children: [{ id: "child", name: "Issue", value: 2 }] }];
+    selection.select("child", ["root", "child"]);
+    render(<DataView rows={rows} columns={nodeColumns} mode="tree-table" getChildren={(row) => row.children} selectionModel={selection} onSelectionChange={changed} height={120} storageKey="hidden-selection" />);
+    fireEvent.click(screen.getByRole("button", { name: "Collapse Filter" }));
+    expect(screen.queryByText("Issue")).not.toBeInTheDocument();
+    expect(selection.isSelected("child")).toBe(true);
+    expect(selection.getSnapshot().active).toBe("child");
+    expect(changed.mock.calls.at(-1)?.[0]).toEqual([rows[0].children?.[0]]);
+  });
   it.each(["table", "list", "tree", "tree-table"] as const)(
     "renders %s mode from one primitive",
     (mode) => {
