@@ -1,5 +1,14 @@
 # Releases
 
+## 1.4.0 — 2026-08-10
+
+- Version: `1.4.0`
+- Release content commit: `b03a3265cbc34fc8cc30f741ed89bbfad61ec59f`
+- Annotated tag: `v1.4.0`
+- Change: application menus are rendered in a viewport-level portal above MDI windows; DataView tree disclosure uses compact chevrons and bounded indentation; commands can use a canonical external-link icon.
+- Verification: build and examples passed; 37 unit, 47 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
+- Known host-level limitations: browser DPI coverage does not replace native multi-monitor placement validation.
+
 ## 1.3.0 — 2026-08-10
 
 - Version: `1.3.0`
