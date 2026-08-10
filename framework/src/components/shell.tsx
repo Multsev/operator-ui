@@ -88,8 +88,17 @@ export function Menu({ label, items }: { label: string; items: MenuEntry[] }) {
       const target = event.target as Node;
       if (!root.current?.contains(target) && !popup.current?.contains(target)) closeMenu();
     };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      closeMenu(true);
+    };
     window.addEventListener("pointerdown", close);
-    return () => window.removeEventListener("pointerdown", close);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("pointerdown", close);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
   }, [closeMenu, open]);
   useLayoutEffect(() => {
     if (!open) return;

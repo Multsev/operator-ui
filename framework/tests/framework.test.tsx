@@ -312,6 +312,10 @@ describe("nested desktop menus", () => {
     expect(menu).toHaveClass("ou-floating-menu");
     expect(container.contains(menu)).toBe(false);
     expect(menu.parentElement).toBe(document.body);
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    await waitFor(() => expect(trigger).toHaveFocus());
+    await userEvent.click(trigger);
     await userEvent.click(screen.getByRole("menuitem", { name: "Run action" }));
     expect(action).toHaveBeenCalledOnce();
     await waitFor(() => expect(trigger).toHaveFocus());
