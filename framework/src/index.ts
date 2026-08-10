@@ -25,6 +25,7 @@ export * from "./framework";
 export { MDIWorkspace } from "./mdi/MDIWorkspace";
 export { ToolWindow } from "./mdi/ToolWindow";
 export { useWindowManager } from "./mdi/useWindowManager";
+export type { WindowManagerOptions } from "./mdi/useWindowManager";
 export { windowReducer, collisionSafePlacement, prepareWindow, cascadeLayout, tileLayout, loadWindowState, saveWindowState, emptyWindowState } from "./mdi/windowManager";
 export { toolDefinitions } from "./mdi/types";
-export type { ToolType, Rect, Size, WindowMode, ToolWindowState, WindowManagerState, WorkspaceMetrics } from "./mdi/types";
+export type { ToolType, ToolDefinition, ToolDefinitionRegistry, InitialTool, Rect, Size, WindowMode, ToolWindowState, WindowManagerState, WorkspaceMetrics } from "./mdi/types";

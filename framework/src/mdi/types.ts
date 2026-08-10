@@ -1,14 +1,4 @@
-export type ToolType =
-  | "interfaces"
-  | "routes"
-  | "firewall"
-  | "logs"
-  | "terminal"
-  | "users"
-  | "files"
-  | "properties"
-  | "gallery"
-  | "validation";
+export type ToolType = string;
 
 export type Rect = { x: number; y: number; width: number; height: number };
 export type Size = { width: number; height: number };
@@ -38,10 +28,23 @@ export type WorkspaceMetrics = {
   scrollTop: number;
 };
 
-export const toolDefinitions: Record<
-  ToolType,
-  { title: string; singleton: boolean; defaultSize: Size; minSize: Size }
-> = {
+export type ToolDefinition = {
+  title: string;
+  singleton: boolean;
+  defaultSize: Size;
+  minSize: Size;
+  titleForParams?: (params?: Record<string, string>) => string;
+};
+
+export type ToolDefinitionRegistry = Record<ToolType, ToolDefinition>;
+
+export type InitialTool = {
+  tool: ToolType;
+  params?: Record<string, string>;
+  rect?: Rect;
+};
+
+export const toolDefinitions: ToolDefinitionRegistry = {
   interfaces: {
     title: "Interfaces",
     singleton: true,
@@ -89,6 +92,7 @@ export const toolDefinitions: Record<
     singleton: false,
     defaultSize: { width: 470, height: 305 },
     minSize: { width: 400, height: 275 },
+    titleForParams: (params) => params?.name ? `${params.name} — Properties` : "Properties",
   },
   gallery: {
     title: "UI Gallery — Developer",
@@ -101,5 +105,6 @@ export const toolDefinitions: Record<
     singleton: false,
     defaultSize: { width: 790, height: 500 },
     minSize: { width: 560, height: 360 },
+    titleForParams: (params) => params?.title || "Composition validation",
   },
 };

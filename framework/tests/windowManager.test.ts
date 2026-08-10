@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { cascadeLayout, collisionSafePlacement, emptyWindowState, loadWindowState, prepareWindow, saveWindowState, tileLayout, windowReducer } from '../src/mdi/windowManager';
-import type { ToolWindowState, WorkspaceMetrics } from '../src/mdi/types';
+import type { ToolDefinitionRegistry, ToolWindowState, WorkspaceMetrics } from '../src/mdi/types';
 
 const metrics: WorkspaceMetrics = { width: 1200, height: 700, scrollLeft: 0, scrollTop: 0 };
 
@@ -38,5 +38,21 @@ describe('WindowManager', () => {
   it('persists and repairs window state', () => {
     const item = tool('routes', -50, -20); const state = windowReducer(emptyWindowState, { type: 'open', window: item }); saveWindowState(state);
     const loaded = loadWindowState(); expect(loaded.windows.routes.rect.x).toBe(0); expect(loaded.windows.routes.rect.y).toBe(0); expect(loaded.activeId).toBe('routes');
+  });
+
+  it('supports application-defined tools and isolated persistence', () => {
+    const definitions: ToolDefinitionRegistry = {
+      jira: { title: 'Jira', singleton: true, defaultSize: { width: 800, height: 520 }, minSize: { width: 560, height: 360 } },
+      issue: { title: 'Issue', singleton: false, defaultSize: { width: 620, height: 440 }, minSize: { width: 420, height: 300 }, titleForParams: (params) => params?.key || 'Issue' },
+    };
+    const jira = prepareWindow('jira', [], metrics, undefined, definitions);
+    const issue = prepareWindow('issue', [jira], metrics, { objectId: 'WB-42', key: 'WB-42' }, definitions);
+    expect(jira.id).toBe('jira');
+    expect(issue.id).toBe('issue:WB-42');
+    expect(issue.title).toBe('WB-42');
+    const state = windowReducer(windowReducer(emptyWindowState, { type: 'open', window: jira }), { type: 'open', window: issue });
+    saveWindowState(state, 'workbox:mdi');
+    expect(loadWindowState(definitions, 'workbox:mdi').order).toEqual(['jira', 'issue:WB-42']);
+    expect(loadWindowState(definitions, 'another-app:mdi').order).toEqual([]);
   });
 });

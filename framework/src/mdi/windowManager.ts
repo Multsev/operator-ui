@@ -1,5 +1,6 @@
 import {
   toolDefinitions,
+  type ToolDefinitionRegistry,
   type Rect,
   type ToolType,
   type ToolWindowState,
@@ -177,8 +178,10 @@ export function prepareWindow(
   existing: ToolWindowState[],
   metrics: WorkspaceMetrics,
   params?: Record<string, string>,
+  definitions: ToolDefinitionRegistry = toolDefinitions,
 ): ToolWindowState {
-  const definition = toolDefinitions[tool];
+  const definition = definitions[tool];
+  if (!definition) throw new Error(`Unknown Operator UI tool: ${tool}`);
   const id = definition.singleton
     ? tool
     : `${tool}:${params?.objectId || params?.kind || Date.now()}`;
@@ -187,12 +190,7 @@ export function prepareWindow(
     definition.defaultSize,
     metrics,
   );
-  const title =
-    tool === "properties" && params?.name
-      ? `${params.name} — Properties`
-      : tool === "validation" && params?.title
-        ? params.title
-        : definition.title;
+  const title = definition.titleForParams?.(params) || definition.title;
   return {
     id,
     tool,
@@ -283,31 +281,34 @@ export function tileLayout(
   return { windows, order: state.order };
 }
 
-export function loadWindowState(): WindowManagerState {
+export function loadWindowState(
+  definitions: ToolDefinitionRegistry = toolDefinitions,
+  storageKey = "v2:mdi-workspace",
+): WindowManagerState {
   try {
     const parsed = frameworkPersistence.get<{
       version?: number;
       state?: WindowManagerState;
-    } | null>("v2:mdi-workspace", null);
+    } | null>(storageKey, null);
     if (parsed?.version !== 2 || !parsed.state) return emptyWindowState;
     const windows = Object.fromEntries(
       Object.entries(parsed.state.windows)
-        .filter(([, item]) => Boolean(toolDefinitions[item.tool]))
+        .filter(([, item]) => Boolean(definitions[item.tool]))
         .map(([id, item]) => [
           id,
           {
             ...item,
-            minSize: toolDefinitions[item.tool].minSize,
+            minSize: definitions[item.tool].minSize,
             rect: {
               ...item.rect,
               x: Math.max(0, item.rect.x),
               y: Math.max(0, item.rect.y),
               width: Math.max(
-                toolDefinitions[item.tool].minSize.width,
+                definitions[item.tool].minSize.width,
                 item.rect.width,
               ),
               height: Math.max(
-                toolDefinitions[item.tool].minSize.height,
+                definitions[item.tool].minSize.height,
                 item.rect.height,
               ),
             },
@@ -326,6 +327,9 @@ export function loadWindowState(): WindowManagerState {
     return emptyWindowState;
   }
 }
-export function saveWindowState(state: WindowManagerState) {
-  frameworkPersistence.set("v2:mdi-workspace", { version: 2, state });
+export function saveWindowState(
+  state: WindowManagerState,
+  storageKey = "v2:mdi-workspace",
+) {
+  frameworkPersistence.set(storageKey, { version: 2, state });
 }

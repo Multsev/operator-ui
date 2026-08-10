@@ -1,6 +1,6 @@
 # Operator UI manifest
 
-Version: **1.0.0**
+Version: **1.1.0**
 Canonical framework: [`./framework/`](./framework/)
 Canonical TypeScript entry: [`./framework/src/index.ts`](./framework/src/index.ts)
 Canonical tokens: [`./framework/src/tokens/tokens.css`](./framework/src/tokens/tokens.css)
@@ -24,6 +24,7 @@ ObjectList · MasterDetail · TreeDetail · TabbedInspector · Settings · Calen
 - `framework/src/components/`: canonical visual primitives and composition helpers.
 - `framework/src/framework/`: commands, selection, data, async and persistence.
 - `framework/src/mdi/`: WindowManager, MDIWorkspace and ToolWindow.
+- `useWindowManager(options)`: optional application tool registry, initial windows and isolated persistence key; the no-argument demo contract remains compatible.
 - `framework/src/tokens/`: semantic design tokens and density dimensions.
 - `framework/src/styles/`: canonical rendering rules.
 - `framework/src/app/`: executable validation/test harness; not core exports.
