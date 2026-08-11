@@ -1,5 +1,14 @@
 # Releases
 
+## 1.7.6 — 2026-08-11
+
+- Version: `1.7.6`
+- Release content commit: `3d552cb22455f7a2411e024d37861affd7f405ff`
+- Annotated tag: `v1.7.6`
+- Fix: labelled command buttons now isolate a bounded 14 px icon from a single-line flex label; the layout audit rejects inner icon/label clipping and the official fixture verifies normal and 20 px font rendering.
+- Verification: build and examples passed; 53 unit and 51 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
+- Known host-level limitations: browser geometry and DPI coverage do not replace native multi-monitor restoration, platform font rendering or assistive-technology testing.
+
 ## 1.7.5 — 2026-08-11
 
 - Version: `1.7.5`
