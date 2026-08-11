@@ -24,6 +24,9 @@ Both transports call the same named operations, validation, authorization, locks
 - Add `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Cache-Control: no-store` for HTML and API responses.
 - Never expose native file pickers, arbitrary filesystem access, credential reveal/copy, shell execution or generic method names through the web transport.
 - LAN/public binding requires explicit scope, TLS or a trusted reverse proxy, firewall guidance and a visible warning. Do not silently convert loopback publication into remote access.
+- Prefer binding the selected private LAN address rather than `0.0.0.0`; reject unrelated `Host` values and do not expose the service through VPN/public interfaces accidentally.
+- For self-hosted LAN HTTPS, keep the application CA private key in the OS credential vault, generate a leaf certificate whose SAN matches the current LAN IP, export only the public CA certificate, and explain that the user must install and trust it on each client device.
+- Regenerate the leaf certificate after the LAN address changes. Keep the access token independent of the certificate so token revocation does not require reinstalling the CA.
 
 ## Settings composition
 
@@ -35,6 +38,8 @@ Use Settings → Panel/GroupBox with:
 - read-only address;
 - `InlineStatus`: stopped, starting, running or error;
 - Commands: copy address, restart, revoke sessions.
+
+For LAN mode also expose a desktop-only `export public certificate` command. Never expose certificate private keys or a filesystem path operation through the published web transport.
 
 Persist only `enabled`, `scope` and `port`. Treat changing scope or port as a restart. Rotating the token revokes existing browser sessions.
 
