@@ -3,10 +3,10 @@
 ## 1.7.0 — 2026-08-11
 
 - Version: `1.7.0`
-- Release content commit: pending
+- Release content commit: `8e53fd658aff089ae3bf03988a30076ecb295526`
 - Annotated tag: `v1.7.0`
 - Change: Layout Safety Contract adds priority-aware measured command overflow, labelled fallback for iconless compact commands, font-aware control geometry, pixel-safe SplitView minima, repaired MDI restore geometry and reusable automated layout audits.
-- Verification: pending.
+- Verification: build and examples passed; 49 unit and 49 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
 - Known host-level limitations: browser geometry and DPI coverage do not replace native multi-monitor restoration, platform font rendering or assistive-technology testing.
 
 ## 1.6.0 — 2026-08-11
