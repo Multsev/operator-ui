@@ -222,6 +222,29 @@ describe("unified DataView", () => {
     expect(selection.getSnapshot().selected).toEqual(new Set(["first", "second"]));
     expect(contextMenu).toHaveBeenCalledWith(expect.anything(), rows[1]);
   });
+  it("provides selected rows to a row drag and accepts a compatible row drop", () => {
+    const selection = new SelectionModel<string>();
+    const dragStart = vi.fn();
+    const drop = vi.fn();
+    const rows: NodeRow[] = [
+      { id: "first", name: "First", value: 1 },
+      { id: "second", name: "Second", value: 2 },
+      { id: "target", name: "Target", value: 3 },
+    ];
+    selection.select("first", rows.map((row) => row.id));
+    selection.select("second", rows.map((row) => row.id), { toggle: true });
+    render(<DataView rows={rows} columns={nodeColumns} selectionModel={selection} rowDraggable onRowDragStart={dragStart} canDropOnRow={(event) => event.dataTransfer.types.includes("application/x-test-row")} onRowDrop={drop} height={120} storageKey="row-drag-drop" />);
+    const second = screen.getByText("Second").closest<HTMLElement>('[role="row"]')!;
+    const target = screen.getByText("Target").closest<HTMLElement>('[role="row"]')!;
+    const dataTransfer = { types: ["application/x-test-row"], dropEffect: "none", setData: vi.fn(), getData: vi.fn() };
+    fireEvent.dragStart(second, { dataTransfer });
+    expect(dragStart).toHaveBeenCalledWith(expect.anything(), rows[1], [rows[0], rows[1]]);
+    fireEvent.dragOver(target, { dataTransfer });
+    expect(target).toHaveClass("is-drop-target");
+    fireEvent.drop(target, { dataTransfer });
+    expect(drop).toHaveBeenCalledWith(expect.anything(), rows[2]);
+    expect(target).not.toHaveClass("is-drop-target");
+  });
   it("keeps a collapsed descendant selected and available to its inspector", () => {
     const selection = new SelectionModel<string>();
     const changed = vi.fn();

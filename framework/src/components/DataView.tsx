@@ -5,6 +5,7 @@ import {
   useState,
   useSyncExternalStore,
   type KeyboardEvent,
+  type DragEvent,
   type MouseEvent,
   type ReactNode,
 } from "react";
@@ -51,6 +52,10 @@ export type DataViewProps<Row extends { id: string }> = {
   onOpen?: (row: Row) => void;
   onContextMenu?: (event: MouseEvent, row: Row) => void;
   onSelectionChange?: (rows: Row[]) => void;
+  rowDraggable?: boolean | ((row: Row) => boolean);
+  onRowDragStart?: (event: DragEvent<HTMLDivElement>, row: Row, selectedRows: Row[]) => void;
+  canDropOnRow?: (event: DragEvent<HTMLDivElement>, row: Row) => boolean;
+  onRowDrop?: (event: DragEvent<HTMLDivElement>, row: Row) => void;
 };
 
 export function DataView<Row extends { id: string }>({
@@ -69,6 +74,10 @@ export function DataView<Row extends { id: string }>({
   onOpen,
   onContextMenu,
   onSelectionChange,
+  rowDraggable = false,
+  onRowDragStart,
+  canDropOnRow,
+  onRowDrop,
 }: DataViewProps<Row>) {
   const ownedSelection = useRef(new SelectionModel<string>());
   const selection = selectionModel ?? ownedSelection.current;
@@ -99,6 +108,7 @@ export function DataView<Row extends { id: string }>({
     frameworkPersistence.get(`${storageKey}:order`, []),
   );
   const [scroll, setScroll] = useState({ top: 0, left: 0 });
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
   const viewport = useRef<HTMLDivElement>(null);
   const rowHeight = 20;
   const persistedHidden = useMemo(
@@ -434,8 +444,33 @@ export function DataView<Row extends { id: string }>({
                   aria-level={mode.startsWith("tree") ? level + 1 : undefined}
                   aria-expanded={expandable ? expanded.has(row.id) : undefined}
                   aria-selected={selection.isSelected(row.id)}
-                  className={`ou-grid-row ${selection.isSelected(row.id) ? "is-selected" : ""} ${index === activeIndex ? "is-active" : ""}`}
+                  className={`ou-grid-row ${selection.isSelected(row.id) ? "is-selected" : ""} ${index === activeIndex ? "is-active" : ""} ${dropTarget === row.id ? "is-drop-target" : ""}`}
                   style={{ gridTemplateColumns: template }}
+                  draggable={typeof rowDraggable === "function" ? rowDraggable(row) : rowDraggable}
+                  onDragStart={(event) => {
+                    if (!selection.isSelected(row.id)) selection.select(row.id, visibleKeys);
+                    const selectedKeys = selection.getSnapshot().selected;
+                    const selectedRows = [...selectedKeys]
+                      .map((key) => allRowsById.get(key))
+                      .filter((item): item is Row => Boolean(item));
+                    onRowDragStart?.(event, row, selectedRows);
+                  }}
+                  onDragEnd={() => setDropTarget(null)}
+                  onDragOver={(event) => {
+                    if (!onRowDrop || (canDropOnRow && !canDropOnRow(event, row))) return;
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = "link";
+                    setDropTarget(row.id);
+                  }}
+                  onDragLeave={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropTarget(null);
+                  }}
+                  onDrop={(event) => {
+                    if (!onRowDrop || (canDropOnRow && !canDropOnRow(event, row))) return;
+                    event.preventDefault();
+                    setDropTarget(null);
+                    onRowDrop(event, row);
+                  }}
                   // A secondary click on an already-selected row must preserve
                   // the complete selection for group context-menu commands.
                   // The context-menu handler below still selects an unselected

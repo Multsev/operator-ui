@@ -15,6 +15,8 @@ DataView is the primary structured-collection primitive. `DataGrid` and `TreeVie
 
 DataView provides stable-row selection, Ctrl/Cmd toggle, Shift range, keyboard navigation, sorting, live filtering, persisted widths/order/visibility, column resize/reorder, horizontal and vertical scrolling, synchronized headers, copying, double-click/open hooks, context-menu hooks and row virtualization.
 
+Applications may enable row drag-and-drop with `rowDraggable`, `onRowDragStart`, `canDropOnRow` and `onRowDrop`. The drag callback receives the stable current selection so multi-object operations do not need a second selection engine. Applications own MIME payloads and domain validation; DataView only supplies selection-safe interaction and a canonical drop-target state.
+
 Tree compositions may set `defaultExpansion="roots" | "all" | "none"`. The default remains `roots` for compatibility; applications implement explicit expand/collapse-all commands by remounting with a stable generation key and the requested default. Nested objects must retain occurrence-stable IDs.
 
 Expandable rows toggle on double click by default. Tree/detail applications whose primary object action is open may set `doubleClickBehavior="open"`; the disclosure button and keyboard arrows continue to own expansion.

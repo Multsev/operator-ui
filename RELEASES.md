@@ -1,5 +1,13 @@
 # Releases
 
+## 1.6.0 — 2026-08-11
+
+- Version: `1.6.0`
+- Release content commit: pending
+- Annotated tag: `v1.6.0`
+- Change: DataView exposes selection-safe row drag-and-drop callbacks with application-owned payload validation and a canonical drop-target state.
+- Verification: pending.
+
 ## 1.5.2 — 2026-08-11
 
 - Version: `1.5.2`
