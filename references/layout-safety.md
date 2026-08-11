@@ -24,6 +24,7 @@ Focus order:
 - A local row containing multiple application Commands must use `CommandToolbar`; raw `.ou-local-toolbar` composition is not a substitute for measured overflow.
 - Never use `overflow: hidden` on an action surface without an accessible overflow destination.
 - An icon-only command needs a real icon, accessible name and tooltip. A command without an icon falls back to a labelled button.
+- A labelled command button uses bounded flex geometry: its icon is 12–16 px, never establishes the text baseline, and both icon and single-line label remain inside the control at every supported font size.
 - Interactive targets are at least 24 by 24 CSS pixels. Icons remain 12–16 pixels.
 
 ## Text and control geometry
@@ -63,7 +64,7 @@ Every official composition defines loading, empty, offline/stale, recoverable er
 
 ## Verification
 
-Use `auditLayoutSafety` or `assertLayoutSafety` in component/Playwright tests. The audit checks root overflow, unmanaged local command rows, clipped tabs/actions, missing overflow destinations, mixed toolbar control heights, small targets and unreachable MDI title bars. Exercise:
+Use `auditLayoutSafety` or `assertLayoutSafety` in component/Playwright tests. The audit checks root overflow, unmanaged local command rows, clipped tabs/actions and their inner icon/label geometry, missing overflow destinations, mixed toolbar control heights, small targets and unreachable MDI title bars. Exercise:
 
 - host widths 800, 1024, 1280, 1440, 1920 and 2560;
 - child widths 320, 480 and 640;

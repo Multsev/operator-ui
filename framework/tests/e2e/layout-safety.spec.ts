@@ -25,6 +25,21 @@ test("priority toolbar keeps every command reachable without clipping", async ({
       fontSize: getComputedStyle(control).fontSize,
     })).filter((item) => item.height > 0);
     const heights = geometry.map((item) => item.height);
+    const labelledCommands = [...element.querySelectorAll<HTMLElement>("button.ou-compact-button")]
+      .filter((button) => button.querySelector(":scope > svg") && button.querySelector(":scope > .ou-command-label"))
+      .map((button) => {
+        const buttonBounds = button.getBoundingClientRect();
+        const iconBounds = button.querySelector(":scope > svg")!.getBoundingClientRect();
+        const labelBounds = button.querySelector<HTMLElement>(":scope > .ou-command-label")!.getBoundingClientRect();
+        return {
+          display: getComputedStyle(button).display,
+          scrollHeight: button.scrollHeight,
+          clientHeight: button.clientHeight,
+          iconWidth: iconBounds.width,
+          iconInside: iconBounds.top >= buttonBounds.top - 1 && iconBounds.bottom <= buttonBounds.bottom + 1,
+          labelInside: labelBounds.top >= buttonBounds.top - 1 && labelBounds.bottom <= buttonBounds.bottom + 1,
+        };
+      });
     return {
       clipped: controls.some((control) => {
         const rect = control.getBoundingClientRect();
@@ -36,6 +51,7 @@ test("priority toolbar keeps every command reachable without clipping", async ({
       }),
       heights,
       geometry,
+      labelledCommands,
     };
   });
   const assertSafe = async () => {
@@ -43,11 +59,20 @@ test("priority toolbar keeps every command reachable without clipping", async ({
     expect(result.clipped).toBe(false);
     expect(result.small).toBe(false);
     expect(Math.max(...result.heights) - Math.min(...result.heights), JSON.stringify(result.geometry)).toBeLessThanOrEqual(2);
+    expect(result.labelledCommands.length).toBeGreaterThan(0);
+    for (const command of result.labelledCommands) {
+      expect(["flex", "inline-flex"]).toContain(command.display);
+      expect(command.scrollHeight).toBeLessThanOrEqual(command.clientHeight + 1);
+      expect(command.iconWidth).toBeLessThanOrEqual(16);
+      expect(command.iconInside).toBe(true);
+      expect(command.labelInside).toBe(true);
+    }
   };
   await assertSafe();
   await page.evaluate(() => document.documentElement.style.setProperty("--ou-font-size", "20px"));
   await expect(toolbar).toBeVisible();
   await assertSafe();
+  await expect(toolbar).toHaveScreenshot("layout-safe-toolbar-font-20.png", { animations: "disabled" });
 });
 
 test("narrow tab sets preserve whole labels through a reachable overflow menu", async ({ page }) => {

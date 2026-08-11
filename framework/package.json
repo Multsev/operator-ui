@@ -1,7 +1,7 @@
 {
   "name": "@operator-ui/framework",
   "private": true,
-  "version": "1.7.5",
+  "version": "1.7.6",
   "description": "Compact desktop-first React UI framework with MDI and layout-safety contracts",
   "license": "MPL-2.0",
   "repository": {

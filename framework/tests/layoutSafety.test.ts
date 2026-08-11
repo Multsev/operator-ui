@@ -57,4 +57,22 @@ describe("Layout Safety Contract", () => {
       "missing-overflow",
     ]));
   });
+
+  it("reports an icon or label escaping an otherwise valid command button", () => {
+    document.body.innerHTML = `<button class="ou-compact-button" title="Обновить"><svg></svg><span class="ou-command-label">Обновить</span></button>`;
+    const button = document.querySelector<HTMLButtonElement>("button")!;
+    const icon = button.querySelector<SVGElement>("svg")!;
+    const label = button.querySelector<HTMLElement>(".ou-command-label")!;
+    button.getBoundingClientRect = () => box(0, 0, 100, 24);
+    icon.getBoundingClientRect = () => box(4, -2, 24, 24);
+    label.getBoundingClientRect = () => box(32, 16, 64, 14);
+    Object.defineProperty(button, "clientHeight", { configurable: true, value: 24 });
+    Object.defineProperty(button, "scrollHeight", { configurable: true, value: 30 });
+
+    expect(auditLayoutSafety(document).map((issue) => issue.rule)).toEqual([
+      "clipped-action-content",
+      "clipped-action-content",
+      "clipped-action-content",
+    ]);
+  });
 });

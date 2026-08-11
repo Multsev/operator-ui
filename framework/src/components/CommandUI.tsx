@@ -71,7 +71,11 @@ export function CommandButton<Context extends CommandContext>({
       onClick={() => void registry.execute(commandId, context)}
     >
       {Icon && <Icon />}
-      {children || (!iconOnly && (command.shortTitle || command.title))}
+      {!iconOnly && (
+        <span className="ou-command-label">
+          {children ?? command.shortTitle ?? command.title}
+        </span>
+      )}
     </button>
   );
 }
@@ -233,7 +237,9 @@ export function CommandToolbar<Context extends CommandContext>({
             }}
             className={`ou-command-slot ${hiddenIds.has(id) ? "is-overflow-hidden" : ""}`}
           >
-            <CommandButton registry={registry} commandId={id} context={context}>{labels[id]}</CommandButton>
+            <CommandButton registry={registry} commandId={id} context={context}>
+              {labels[id] ?? registry.get(id)?.shortTitle}
+            </CommandButton>
           </span>
         ) : null,
       )}

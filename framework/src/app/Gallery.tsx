@@ -12,7 +12,7 @@ import { CommandRegistry } from '../framework';
 
 const layoutCommands = new CommandRegistry();
 [
-  { id: 'layout-compose', title: 'Compose message', shortTitle: 'Compose' },
+  { id: 'layout-compose', title: 'Compose message', shortTitle: 'Compose', icon: 'add' },
   { id: 'layout-refresh', title: 'Refresh objects', icon: 'refresh' },
   { id: 'layout-folders', title: 'Manage folders', shortTitle: 'Folders' },
   { id: 'layout-older', title: 'Load older', shortTitle: 'Older' },

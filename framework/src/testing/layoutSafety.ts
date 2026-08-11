@@ -1,6 +1,7 @@
 export type LayoutSafetyIssue = {
   rule:
     | "clipped-action"
+    | "clipped-action-content"
     | "clipped-label"
     | "clipped-tab"
     | "missing-overflow"
@@ -113,6 +114,23 @@ export function auditLayoutSafety(
     "button.ou-button, button.ou-compact-button, button.ou-toolbar-button-16, .ou-menubar button, .ou-floating-menu button, .ou-window-controls button, .ou-command-overflow > button, .ou-tab-overflow > button",
   ).forEach((button) => {
     if (!visible(button)) return;
+    const buttonBounds = button.getBoundingClientRect();
+    button.querySelectorAll<HTMLElement>(":scope > svg, :scope > .ou-command-label").forEach((content) => {
+      if (visible(content) && !rectInside(content.getBoundingClientRect(), buttonBounds, tolerance)) {
+        issues.push({
+          rule: "clipped-action-content",
+          element: content,
+          message: "Command icon or label escapes its button; use bounded flex geometry.",
+        });
+      }
+    });
+    if (button.scrollHeight > button.clientHeight + tolerance) {
+      issues.push({
+        rule: "clipped-action-content",
+        element: button,
+        message: "Command content is taller than its button; align and size icon and label explicitly.",
+      });
+    }
     if (button.scrollWidth > button.clientWidth + tolerance && !button.title) {
       issues.push({
         rule: "clipped-label",
@@ -120,7 +138,7 @@ export function auditLayoutSafety(
         message: "A truncated button label requires a full title.",
       });
     }
-    const rect = button.getBoundingClientRect();
+    const rect = buttonBounds;
     if ((rect.width > 0 && rect.width < 24) || (rect.height > 0 && rect.height < 24)) {
       issues.push({
         rule: "small-target",

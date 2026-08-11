@@ -113,6 +113,16 @@ describe("CommandRegistry", () => {
     const { container } = render(<CommandToolbar registry={registry} commandIds={["open"]} context={{}} />);
     expect(container.querySelector(".lucide-external-link")).toBeInTheDocument();
   });
+  it("isolates a labelled command icon from its single-line label", () => {
+    const registry = new CommandRegistry();
+    registry.register({ id: "refresh", title: "Refresh objects", icon: "refresh", execute: vi.fn() });
+    const { container } = render(<CommandToolbar registry={registry} commandIds={["refresh"]} labels={{ refresh: "Обновить рабочую область" }} context={{}} />);
+    const button = screen.getByRole("button", { name: "Refresh objects" });
+    expect(button).toHaveClass("ou-compact-button");
+    expect(button.querySelector(":scope > svg")).toBeInTheDocument();
+    expect(button.querySelector(":scope > .ou-command-label")).toHaveTextContent("Обновить рабочую область");
+    expect(container.querySelectorAll(".ou-command-label")).toHaveLength(1);
+  });
   it("never renders an empty compact command when an icon is unavailable", () => {
     const registry = new CommandRegistry();
     registry.register({ id: "diagnose", title: "Run diagnostics", execute: vi.fn() });
