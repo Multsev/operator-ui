@@ -149,6 +149,27 @@ describe("CommandRegistry", () => {
       if (offsetWidth) Object.defineProperty(HTMLElement.prototype, "offsetWidth", offsetWidth); else delete (HTMLElement.prototype as any).offsetWidth;
     }
   });
+  it("does not remeasure forever when callers pass inline priority maps", async () => {
+    const clientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientWidth");
+    const offsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", { configurable: true, get() { return (this as HTMLElement).classList.contains("ou-command-toolbar") ? 130 : 0; } });
+    Object.defineProperty(HTMLElement.prototype, "offsetWidth", { configurable: true, get() { return (this as HTMLElement).classList.contains("ou-command-slot") ? 70 : 0; } });
+    try {
+      const registry = new CommandRegistry();
+      registry.register({ id: "compose", title: "Compose", execute: vi.fn() });
+      registry.register({ id: "filter", title: "Filter", execute: vi.fn() });
+      registry.register({ id: "export", title: "Export", execute: vi.fn() });
+      function InlinePriorities() {
+        return <CommandToolbar registry={registry} commandIds={["compose", "filter", "export"]} priorities={{ compose: "essential", export: "secondary" }} context={{}} />;
+      }
+      render(<InlinePriorities />);
+      expect(await screen.findByRole("button", { name: "More actions" })).toBeVisible();
+      expect(screen.getByRole("button", { name: "Compose" })).toBeVisible();
+    } finally {
+      if (clientWidth) Object.defineProperty(HTMLElement.prototype, "clientWidth", clientWidth); else delete (HTMLElement.prototype as any).clientWidth;
+      if (offsetWidth) Object.defineProperty(HTMLElement.prototype, "offsetWidth", offsetWidth); else delete (HTMLElement.prototype as any).offsetWidth;
+    }
+  });
 });
 
 describe("AsyncTask and DataSource", () => {

@@ -152,6 +152,9 @@ export function CommandToolbar<Context extends CommandContext>({
     [commandIds, context, registry, registryVersion],
   );
   const signature = visibleIds.join("\u0000");
+  const prioritySignature = visibleIds
+    .map((id) => `${id}:${priorities[id] || "primary"}`)
+    .join("\u0000");
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -187,7 +190,7 @@ export function CommandToolbar<Context extends CommandContext>({
       observer?.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [priorities, signature]);
+  }, [prioritySignature, signature]);
 
   const overflowItems = visibleIds
     .filter((id) => hiddenIds.has(id))

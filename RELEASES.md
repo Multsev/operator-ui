@@ -1,5 +1,14 @@
 # Releases
 
+## 1.7.5 — 2026-08-11
+
+- Version: `1.7.5`
+- Release content commit: pending
+- Annotated tag: `v1.7.5`
+- Fix: `CommandToolbar` keys its measurement effect by semantic command priorities instead of the caller's object identity, preventing a maximum-update-depth crash when applications pass inline priority maps.
+- Verification: pending.
+- Known host-level limitations: browser geometry and DPI coverage do not replace native multi-monitor restoration, platform font rendering or assistive-technology testing.
+
 ## 1.7.4 — 2026-08-11
 
 - Version: `1.7.4`
