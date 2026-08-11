@@ -1,5 +1,14 @@
 # Releases
 
+## 1.7.4 — 2026-08-11
+
+- Version: `1.7.4`
+- Release content commit: pending
+- Annotated tag: `v1.7.4`
+- Fix: general TextField, SearchField and Select controls now use the same font-aware height formula as command buttons; the layout-safety fixture exercises the public SearchField rather than a compact demo-only field.
+- Verification: build and examples passed; 50 unit and 51 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
+- Known host-level limitations: browser geometry and DPI coverage do not replace native multi-monitor restoration, platform font rendering or assistive-technology testing.
+
 ## 1.7.3 — 2026-08-11
 
 - Version: `1.7.3`
