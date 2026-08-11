@@ -3,7 +3,7 @@
 ## 1.7.2 — 2026-08-11
 
 - Version: `1.7.2`
-- Release content commit: pending
+- Release content commit: `f02f377f4bbd11bd9b9e18a8fc2b5b1d0cc0c01a`
 - Annotated tag: `v1.7.2`
 - Fix: Tabs measure non-shrinking bounded labels and use a portalled overflow menu; CommandToolbar measures leading/trailing controls and supports visible label overrides; layout audits now reject root overflow, clipped tabs/actions, missing overflow destinations, mixed control heights and overflowing hand-built local command rows.
 - Verification: build and examples passed; 50 unit and 51 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
