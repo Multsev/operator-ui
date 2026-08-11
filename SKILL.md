@@ -81,6 +81,10 @@ Pattern:
 Primitives:
 Async:
 Persistence:
+Minimum functional size:
+Command priorities and overflow destination:
+Pane minima and collapse/scroll policy:
+Long-text and state policy:
 New framework primitives required: NONE
 ```
 
@@ -219,6 +223,14 @@ At larger resolutions, show more useful information. Do not enlarge controls mer
 Use horizontal scrolling for genuinely wide structured data. Desktop responsiveness means resize, overflow, priority hiding and pane management—not mobile cards.
 
 Read `references/visual-language.md`, `references/density.md`, and `references/responsive-desktop.md` before styling or layout changes.
+
+## Layout Safety Contract
+
+Every substantial composition must declare its minimum functional size, command priorities, overflow destination, pane minima, long-text behavior and loading/empty/offline/error states before implementation.
+
+Use measured `CommandToolbar` overflow instead of clipping actions. Generic toolbars must stay scrollable when no command model is available. SplitView panes require useful pixel minima. Restored MDI windows must keep their title bars reachable after viewport or monitor changes. A compact command without an icon must fall back to a labelled button.
+
+Run `auditLayoutSafety` or `assertLayoutSafety` in focused tests. Verify Russian and expanded labels, user font sizes, child widths 320/480/640, desktop widths 800–2560 and 125/150/200% scaling. Read `references/layout-safety.md` before modifying layout, sizing, toolbars, panes or windows.
 
 ## Anti-SaaS defaults
 

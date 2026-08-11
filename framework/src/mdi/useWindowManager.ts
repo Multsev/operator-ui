@@ -22,14 +22,18 @@ export function useWindowManager(options: WindowManagerOptions = {}) {
   const initialMetrics = options.fallbackMetrics ?? fallbackMetrics;
   const initialTools: InitialTool[] = options.initialTools ?? (options.definitions ? [] : ['routes', 'interfaces', 'firewall', 'logs'].map((tool) => ({ tool, rect: demoRects[tool] })));
   const [state, dispatch] = useReducer(windowReducer, undefined, () => {
-    const saved = loadWindowState(definitions, storageKey); if (saved.order.length) return saved;
+    const saved = loadWindowState(definitions, storageKey, initialMetrics); if (saved.order.length) return saved;
     let seeded = emptyWindowState;
     for (const item of initialTools) { const prepared = prepareWindow(item.tool, Object.values(seeded.windows), initialMetrics, item.params, definitions); const rect = item.rect || prepared.rect; seeded = windowReducer(seeded, { type: 'open', window: { ...prepared, rect, restoreRect: rect } }); }
     return seeded;
   }); const metrics = useRef<WorkspaceMetrics>(initialMetrics);
   useEffect(() => { const timer = window.setTimeout(() => saveWindowState(state, storageKey), 220); return () => window.clearTimeout(timer); }, [state, storageKey]);
   const api = {
-    setMetrics: (value: WorkspaceMetrics) => { metrics.current = value; },
+    setMetrics: (value: WorkspaceMetrics) => {
+      const resized = metrics.current.width !== value.width || metrics.current.height !== value.height;
+      metrics.current = value;
+      if (resized) dispatch({ type: 'reconcile', metrics: value });
+    },
     openTool: (tool: ToolType, params?: Record<string, string>) => { const singleton = state.windows[tool]; if (singleton) { dispatch({ type: singleton.mode === 'minimized' ? 'restore' : 'activate', id: singleton.id }); return; } dispatch({ type: 'open', window: prepareWindow(tool, Object.values(state.windows), metrics.current, params, definitions) }); },
     closeWindow: (id: string) => dispatch({ type: 'close', id }), closeAll: () => dispatch({ type: 'close-all' }),
     activateWindow: (id: string) => dispatch({ type: 'activate', id }), setRect: (id: string, rect: Rect) => dispatch({ type: 'set-rect', id, rect }),

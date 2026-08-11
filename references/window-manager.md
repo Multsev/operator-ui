@@ -9,7 +9,8 @@ Applications pass `definitions`, `initialTools`, and a stable `storageKey` to `u
 - Every ordinary tool is a `ToolWindow` inside `MDIWorkspace`.
 - Window identity, rect, mode, z-order and activation never live in domain components.
 - Singleton tools use the tool id; modeless inspectors use a stable object id.
-- Child windows may exceed the viewport, but must remain reachable through workspace scrollbars.
+- Persisted and resized windows are reconciled to the current workspace; at least their title bars remain reachable.
+- A child may exceed the viewport only when its declared minimum is larger than the viewport, and workspace scrollbars keep it reachable.
 - Local commands stay inside the owning child window. Global menus contain application and window-management commands only.
 - Property windows record `ownerId`; closing them reactivates the opener.
 - Pointer geometry is normalized by `--ou-ui-scale`.

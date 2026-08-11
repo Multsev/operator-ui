@@ -55,7 +55,17 @@ function MenuEntries({ items, close }: { items: MenuEntry[]; close: () => void }
     return <button key={item.label} role={item.checked === undefined ? "menuitem" : "menuitemcheckbox"} aria-checked={item.checked} disabled={item.disabled} onClick={() => { item.action?.(); close(); }}><span className="ou-menu-check">{item.checked ? "✓" : ""}</span><span>{item.label}</span>{item.shortcut && <kbd>{item.shortcut}</kbd>}</button>;
   });
 }
-export function Menu({ label, items }: { label: string; items: MenuEntry[] }) {
+export function Menu({
+  label,
+  items,
+  className = "",
+  triggerContent,
+}: {
+  label: string;
+  items: MenuEntry[];
+  className?: string;
+  triggerContent?: ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ left: 4, top: 4 });
   const root = useRef<HTMLDivElement>(null);
@@ -67,7 +77,7 @@ export function Menu({ label, items }: { label: string; items: MenuEntry[] }) {
     const scale = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--ou-ui-scale")) || 1;
     const width = 210 * scale;
     const measuredHeight = popup.current?.getBoundingClientRect().height;
-    const estimatedHeight = Math.min(420, (items.length * 23 + 6) * scale);
+    const estimatedHeight = Math.min(420, (items.length * 24 + 6) * scale);
     const height = measuredHeight || estimatedHeight;
     const left = Math.max(4, Math.min(rect.left, window.innerWidth - width - 4));
     const below = rect.bottom;
@@ -112,10 +122,11 @@ export function Menu({ label, items }: { label: string; items: MenuEntry[] }) {
     };
   }, [open, placePopup]);
   return (
-    <div ref={root} className="ou-app-menu">
+    <div ref={root} className={`ou-app-menu ${className}`}>
       <button
         ref={trigger}
         className={`ou-menu-item ${open ? "is-open" : ""}`}
+        aria-label={triggerContent ? label : undefined}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => {
@@ -135,7 +146,7 @@ export function Menu({ label, items }: { label: string; items: MenuEntry[] }) {
           }
         }}
       >
-        {label}
+        {triggerContent ?? label}
       </button>
       {open && createPortal(
         <div

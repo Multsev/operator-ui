@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { CalendarGrid } from "../src/components/CalendarGrid";
-import { CommandMenu, CommandMenuItem, CommandToolbar } from "../src/components/CommandUI";
+import { CommandMenu, CommandMenuItem, CommandToolbar, selectToolbarOverflow } from "../src/components/CommandUI";
 import { DataView, type DataViewColumn } from "../src/components/DataView";
 import { Tabs } from "../src/components/Tabs";
 import { SplitView } from "../src/components/SplitView";
@@ -112,6 +112,42 @@ describe("CommandRegistry", () => {
     registry.register({ id: "open", title: "Open externally", icon: "external", execute: vi.fn() });
     const { container } = render(<CommandToolbar registry={registry} commandIds={["open"]} context={{}} />);
     expect(container.querySelector(".lucide-external-link")).toBeInTheDocument();
+  });
+  it("never renders an empty compact command when an icon is unavailable", () => {
+    const registry = new CommandRegistry();
+    registry.register({ id: "diagnose", title: "Run diagnostics", execute: vi.fn() });
+    render(<CommandToolbar registry={registry} commandIds={["diagnose"]} context={{}} />);
+    const button = screen.getByRole("button", { name: "Run diagnostics" });
+    expect(button).toHaveTextContent("Run diagnostics");
+    expect(button).toHaveClass("ou-compact-button");
+  });
+  it("moves lower-priority commands into measured overflow", () => {
+    expect(selectToolbarOverflow([
+      { id: "compose", width: 70, priority: "essential" },
+      { id: "filter", width: 70, priority: "primary" },
+      { id: "export", width: 70, priority: "secondary" },
+    ], 130)).toEqual(new Set(["export", "filter"]));
+  });
+  it("renders measured overflow commands through the shared menu", async () => {
+    const clientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientWidth");
+    const offsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", { configurable: true, get() { return (this as HTMLElement).classList.contains("ou-command-toolbar") ? 130 : 0; } });
+    Object.defineProperty(HTMLElement.prototype, "offsetWidth", { configurable: true, get() { return (this as HTMLElement).classList.contains("ou-command-slot") ? 70 : 0; } });
+    try {
+      const registry = new CommandRegistry();
+      registry.register({ id: "compose", title: "Compose", execute: vi.fn() });
+      registry.register({ id: "filter", title: "Filter", execute: vi.fn() });
+      registry.register({ id: "export", title: "Export", execute: vi.fn() });
+      render(<CommandToolbar registry={registry} commandIds={["compose", "filter", "export"]} priorities={{ compose: "essential", export: "secondary" }} context={{}} />);
+      const more = await screen.findByRole("button", { name: "More actions" });
+      await userEvent.click(more);
+      expect(screen.getByRole("menuitem", { name: "Export" })).toBeVisible();
+      expect(screen.getByRole("menuitem", { name: "Filter" })).toBeVisible();
+      expect(screen.getByRole("button", { name: "Compose" })).toBeVisible();
+    } finally {
+      if (clientWidth) Object.defineProperty(HTMLElement.prototype, "clientWidth", clientWidth); else delete (HTMLElement.prototype as any).clientWidth;
+      if (offsetWidth) Object.defineProperty(HTMLElement.prototype, "offsetWidth", offsetWidth); else delete (HTMLElement.prototype as any).offsetWidth;
+    }
   });
 });
 
@@ -386,6 +422,13 @@ describe("CalendarGrid and persisted tabs", () => {
     const separator = screen.getByRole("separator", { name: "Resize panes" });
     separator.focus(); await userEvent.keyboard("{ArrowRight}");
     expect(JSON.parse(localStorage.getItem("ou:test-split:split") || "0")).toBe(38);
+  });
+  it("preserves useful pixel minima for both split panes", () => {
+    const { container } = render(<div style={{ width: 300, height: 200 }}><SplitView first="A" second="B" firstMinSize={210} secondMinSize={180} /></div>);
+    const layout = container.querySelector<HTMLElement>(".ou-split-layout");
+    expect(layout?.style.minWidth).toBe("397px");
+    expect(layout?.style.gridTemplateColumns).toContain("minmax(210px");
+    expect(layout?.style.gridTemplateColumns).toContain("minmax(180px");
   });
 });
 

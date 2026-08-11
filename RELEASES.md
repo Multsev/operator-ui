@@ -1,5 +1,14 @@
 # Releases
 
+## 1.7.0 — 2026-08-11
+
+- Version: `1.7.0`
+- Release content commit: pending
+- Annotated tag: `v1.7.0`
+- Change: Layout Safety Contract adds priority-aware measured command overflow, labelled fallback for iconless compact commands, font-aware control geometry, pixel-safe SplitView minima, repaired MDI restore geometry and reusable automated layout audits.
+- Verification: pending.
+- Known host-level limitations: browser geometry and DPI coverage do not replace native multi-monitor restoration, platform font rendering or assistive-technology testing.
+
 ## 1.6.0 — 2026-08-11
 
 - Version: `1.6.0`

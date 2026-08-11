@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { cascadeLayout, collisionSafePlacement, emptyWindowState, loadWindowState, prepareWindow, saveWindowState, tileLayout, windowReducer } from '../src/mdi/windowManager';
+import { cascadeLayout, collisionSafePlacement, emptyWindowState, loadWindowState, normalizeWindowRect, prepareWindow, saveWindowState, tileLayout, windowReducer } from '../src/mdi/windowManager';
 import type { ToolDefinitionRegistry, ToolWindowState, WorkspaceMetrics } from '../src/mdi/types';
 
 const metrics: WorkspaceMetrics = { width: 1200, height: 700, scrollLeft: 0, scrollTop: 0 };
@@ -38,6 +38,21 @@ describe('WindowManager', () => {
   it('persists and repairs window state', () => {
     const item = tool('routes', -50, -20); const state = windowReducer(emptyWindowState, { type: 'open', window: item }); saveWindowState(state);
     const loaded = loadWindowState(); expect(loaded.windows.routes.rect.x).toBe(0); expect(loaded.windows.routes.rect.y).toBe(0); expect(loaded.activeId).toBe('routes');
+  });
+
+  it('repairs stale geometry for a smaller workspace and keeps the title reachable', () => {
+    const repaired = normalizeWindowRect(
+      { x: 1900, y: 1100, width: 1600, height: 900 },
+      { width: 420, height: 240 },
+      { width: 800, height: 600, scrollLeft: 0, scrollTop: 0 },
+      true,
+    );
+    expect(repaired).toEqual({ x: 728, y: 576, width: 800, height: 600 });
+    const item = tool('routes', 1900, 1100);
+    const state = windowReducer(emptyWindowState, { type: 'open', window: { ...item, rect: { x: 1900, y: 1100, width: 1600, height: 900 }, restoreRect: { x: 1900, y: 1100, width: 1600, height: 900 } } });
+    saveWindowState(state, 'small-workspace');
+    const loaded = loadWindowState(undefined, 'small-workspace', { width: 800, height: 600, scrollLeft: 0, scrollTop: 0 });
+    expect(loaded.windows.routes.rect).toEqual(repaired);
   });
 
   it('supports application-defined tools and isolated persistence', () => {

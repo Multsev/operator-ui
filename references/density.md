@@ -10,7 +10,7 @@ Use the values from `../framework/src/tokens/tokens.css`:
 |---|---:|
 | Data row | 20 px |
 | Grid header | 22 px |
-| Compact input/choice | 22 px |
+| Compact input/choice | 24 px |
 | Menubar | 24 px |
 | Child title | 24 px |
 | Local toolbar | 28 px |

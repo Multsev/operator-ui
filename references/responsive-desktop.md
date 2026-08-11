@@ -12,6 +12,10 @@ Operator UI responds as desktop software, not as a mobile website.
 6. Persist splitter, window and column state.
 7. Show more information when more space exists.
 
+`CommandToolbar` measures its content. Applications classify commands as `essential`, `primary`, or `secondary`; lower-priority commands move into the overflow menu before clipping can occur. Generic Toolbar compositions without a command model use horizontal scrolling as the safe fallback.
+
+`SplitView` compositions declare useful pixel minima with `firstMinSize` and `secondMinSize`. When both panes cannot fit, the split container scrolls instead of compressing either pane into an unreadable strip.
+
 Do not convert dense tables into card stacks, replace the launcher with a hamburger, add bottom navigation, or serialize independent tools into SPA routes.
 
 ## Viewport expectations

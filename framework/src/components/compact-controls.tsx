@@ -2,7 +2,7 @@ import { Check, Filter, MessageSquareText, Minus, Plus, RefreshCw, Search, X } f
 import { forwardRef, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react';
 import { Tabs } from './Tabs';
 
-export function CompactButton({ children, className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={`ou-compact-button ${className}`} {...props}>{children}</button>; }
+export function CompactButton({ children, className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { const title = props.title ?? (typeof children === 'string' ? children : undefined); return <button className={`ou-compact-button ${className}`} title={title} {...props}>{children}</button>; }
 export const CompactTextField = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function CompactTextField(props, ref) { return <input ref={ref} className="ou-compact-field" {...props} />; });
 export function CompactComboBox(props: SelectHTMLAttributes<HTMLSelectElement>) { return <select className="ou-compact-field ou-compact-combo" {...props} />; }
 export function CompactCheckbox({ label, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) { return <label className="ou-compact-check"><input type="checkbox" {...props} /><span>{label}</span></label>; }

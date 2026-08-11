@@ -2,7 +2,8 @@ import { cloneElement, forwardRef, isValidElement, useId, type ButtonHTMLAttribu
 import { Icon, type IconName } from './Icon';
 
 export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'default' | 'primary' | 'danger'; icon?: IconName }>(function Button({ variant = 'default', icon, className = '', children, ...props }, ref) {
-  return <button ref={ref} className={`ou-button ou-button--${variant} ${className}`} {...props}>{icon && <Icon name={icon} />}{children}</button>;
+  const title = props.title ?? (typeof children === 'string' ? children : undefined);
+  return <button ref={ref} className={`ou-button ou-button--${variant} ${className}`} title={title} {...props}>{icon && <Icon name={icon} />}{children}</button>;
 });
 
 export function IconButton({ label, icon, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string; icon: IconName }) {
@@ -17,8 +18,8 @@ export function SearchField(props: InputHTMLAttributes<HTMLInputElement>) {
   return <label className="ou-search"><Icon name="search" /><TextField type="search" {...props} /></label>;
 }
 
-export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className="ou-select" {...props} />;
+export function Select({ className = '', ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select className={`ou-select ${className}`} {...props} />;
 }
 
 export function Checkbox({ label, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {

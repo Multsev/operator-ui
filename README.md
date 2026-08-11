@@ -53,6 +53,8 @@ The executable host opens at `http://127.0.0.1:5173` during development. It is a
 
 The accepted desktop model is `ApplicationShell → MDIWorkspace → ToolWindow[]`. WindowManager owns lifecycle and geometry. DataView owns structured collection behavior. CommandRegistry, SelectionModel, DataSource, AsyncTask and PersistenceStore provide reusable behavioral infrastructure. Applications own domain objects, adapters and compositions.
 
+The Layout Safety Contract keeps commands, labels, panes and MDI title bars reachable under resize, localization, user fonts and DPI scaling. `CommandToolbar` provides measured priority overflow; SplitView supports useful pixel minima; `auditLayoutSafety` provides deterministic geometry checks.
+
 ## Versioning
 
 The package starts at `1.0.0`.

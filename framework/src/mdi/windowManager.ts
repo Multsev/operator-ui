@@ -18,6 +18,7 @@ export type WindowAction =
   | { type: "minimize"; id: string }
   | { type: "maximize"; id: string; rect: Rect }
   | { type: "restore"; id: string }
+  | { type: "reconcile"; metrics: WorkspaceMetrics }
   | {
       type: "layout";
       windows: Record<string, ToolWindowState>;
@@ -72,6 +73,28 @@ export function windowReducer(
       order: action.order,
       activeId: action.order.at(-1) || null,
     };
+  if (action.type === "reconcile") {
+    const windows = Object.fromEntries(
+      Object.entries(state.windows).map(([id, item]) => {
+        const restoreRect = normalizeWindowRect(
+          item.restoreRect,
+          item.minSize,
+          action.metrics,
+          true,
+        );
+        const rect = item.mode === "maximized"
+          ? {
+              x: action.metrics.scrollLeft,
+              y: action.metrics.scrollTop,
+              width: Math.max(item.minSize.width, action.metrics.width),
+              height: Math.max(item.minSize.height, action.metrics.height),
+            }
+          : normalizeWindowRect(item.rect, item.minSize, action.metrics, true);
+        return [id, { ...item, rect, restoreRect }];
+      }),
+    );
+    return { ...state, windows };
+  }
   if (!state.windows[action.id]) return state;
   if (action.type === "activate")
     return {
@@ -135,6 +158,38 @@ export function windowReducer(
     };
   }
   return state;
+}
+
+const finite = (value: number, fallback: number) =>
+  Number.isFinite(value) ? value : fallback;
+
+/** Keeps persisted and resized windows usable in the current workspace. */
+export function normalizeWindowRect(
+  rect: Rect,
+  minSize: { width: number; height: number },
+  metrics?: WorkspaceMetrics,
+  constrainSize = false,
+): Rect {
+  let width = Math.max(minSize.width, finite(rect.width, minSize.width));
+  let height = Math.max(minSize.height, finite(rect.height, minSize.height));
+  if (metrics && constrainSize) {
+    width = Math.min(width, Math.max(minSize.width, metrics.width));
+    height = Math.min(height, Math.max(minSize.height, metrics.height));
+  }
+  const originX = 0;
+  const originY = 0;
+  const maximumX = metrics
+    ? metrics.scrollLeft + Math.max(0, metrics.width - 72)
+    : Number.POSITIVE_INFINITY;
+  const maximumY = metrics
+    ? metrics.scrollTop + Math.max(0, metrics.height - 24)
+    : Number.POSITIVE_INFINITY;
+  return {
+    x: Math.max(originX, Math.min(maximumX, finite(rect.x, originX))),
+    y: Math.max(originY, Math.min(maximumY, finite(rect.y, originY))),
+    width,
+    height,
+  };
 }
 
 export function collisionSafePlacement(
@@ -284,6 +339,7 @@ export function tileLayout(
 export function loadWindowState(
   definitions: ToolDefinitionRegistry = toolDefinitions,
   storageKey = "v2:mdi-workspace",
+  metrics?: WorkspaceMetrics,
 ): WindowManagerState {
   try {
     const parsed = frameworkPersistence.get<{
@@ -299,19 +355,18 @@ export function loadWindowState(
           {
             ...item,
             minSize: definitions[item.tool].minSize,
-            rect: {
-              ...item.rect,
-              x: Math.max(0, item.rect.x),
-              y: Math.max(0, item.rect.y),
-              width: Math.max(
-                definitions[item.tool].minSize.width,
-                item.rect.width,
-              ),
-              height: Math.max(
-                definitions[item.tool].minSize.height,
-                item.rect.height,
-              ),
-            },
+            rect: normalizeWindowRect(
+              item.rect,
+              definitions[item.tool].minSize,
+              metrics,
+              Boolean(metrics),
+            ),
+            restoreRect: normalizeWindowRect(
+              item.restoreRect || item.rect,
+              definitions[item.tool].minSize,
+              metrics,
+              Boolean(metrics),
+            ),
           },
         ]),
     );

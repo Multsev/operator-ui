@@ -95,7 +95,7 @@
   --ou-statusbar-height: 22px;
   --ou-window-title-height: 24px;
   --ou-local-toolbar-height: 28px;
-  --ou-compact-control-height: 22px;
+  --ou-compact-control-height: 24px;
   --ou-window-border-width: 1px;
   --ou-mdi-cascade-step: 26px;
   /* Stable semantic aliases: components consume roles, never source-theme hex values. */

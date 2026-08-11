@@ -10,6 +10,8 @@ export function SplitView({
   max = 78,
   storageKey,
   label = "Resize panes",
+  firstMinSize = 160,
+  secondMinSize = 160,
 }: {
   first: ReactNode;
   second: ReactNode;
@@ -19,6 +21,8 @@ export function SplitView({
   max?: number;
   storageKey?: string;
   label?: string;
+  firstMinSize?: number;
+  secondMinSize?: number;
 }) {
   const clamp = (value: number) => Math.max(min, Math.min(max, value));
   const [ratio, setRatio] = useState(() =>
@@ -33,10 +37,11 @@ export function SplitView({
   }, [ratio, storageKey]);
   const horizontal = orientation === "horizontal";
   const style = horizontal
-    ? { gridTemplateRows: `${ratio}% 7px minmax(0, 1fr)` }
-    : { gridTemplateColumns: `${ratio}% 7px minmax(0, 1fr)` };
+    ? { gridTemplateRows: `minmax(${firstMinSize}px, ${ratio}%) 7px minmax(${secondMinSize}px, 1fr)`, minHeight: firstMinSize + secondMinSize + 7 }
+    : { gridTemplateColumns: `minmax(${firstMinSize}px, ${ratio}%) 7px minmax(${secondMinSize}px, 1fr)`, minWidth: firstMinSize + secondMinSize + 7 };
   return (
-    <div className={`ou-split-view is-${orientation}`} style={style}>
+    <div className={`ou-split-view is-${orientation}`}>
+      <div className="ou-split-layout" style={style}>
       <div className="ou-split-pane">{first}</div>
       <div
         className="ou-split-handle"
@@ -85,7 +90,8 @@ export function SplitView({
           window.addEventListener("pointercancel", stop);
         }}
       />
-      <div className="ou-split-pane">{second}</div>
+        <div className="ou-split-pane">{second}</div>
+      </div>
     </div>
   );
 }
