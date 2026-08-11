@@ -1,5 +1,14 @@
 # Releases
 
+## 1.8.1 — 2026-08-11
+
+- Version: `1.8.1`
+- Release content commit: `3acab7ca33141137fcfbe340b51d5d5343e0b85d`
+- Annotated tag: `v1.8.1`
+- Fix: LAN publication policy now requires an explicit private-interface binding, HTTPS with an IP-matching leaf certificate, an application CA whose private key stays in the OS credential vault, and a public-certificate installation flow for client devices.
+- Verification: build and examples passed; 54 unit and 51 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
+- Known host-level limitations: applications own certificate provisioning and firewall behavior; browser coverage does not replace validation on each phone OS and Wi-Fi environment.
+
 ## 1.8.0 — 2026-08-11
 
 - Version: `1.8.0`
