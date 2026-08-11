@@ -1,5 +1,15 @@
 # Releases
 
+## 1.7.1 — 2026-08-11
+
+- Version: `1.7.1`
+- Release content commit: `9bae9ff81b6907925a19d1ed5a0d8566224ed30e`
+- Annotated tag: `v1.7.1`
+- Change: first public open-source release under MPL-2.0, with portable GitHub/Codex installation instructions, contribution policy, security policy and explicit third-party research notices.
+- Compatibility: no framework API or rendering behavior changes from `1.7.0`.
+- Verification: build and examples passed; 49 unit and 49 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed; focused accessibility (6), performance (4) and release-artifact (1) suites passed independently.
+- Known host-level limitations: browser geometry and DPI coverage do not replace native multi-monitor restoration, platform font rendering or assistive-technology testing.
+
 ## 1.7.0 — 2026-08-11
 
 - Version: `1.7.0`
