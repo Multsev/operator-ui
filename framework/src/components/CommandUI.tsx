@@ -118,7 +118,9 @@ export function CommandToolbar<Context extends CommandContext>({
   commandIds,
   context,
   label = "Commands",
+  leading,
   trailing,
+  labels = {},
   priorities = {},
   overflowLabel = "More actions",
 }: {
@@ -126,7 +128,9 @@ export function CommandToolbar<Context extends CommandContext>({
   commandIds: readonly (string | "separator")[];
   context: Context;
   label?: string;
+  leading?: ReactNode;
   trailing?: ReactNode;
+  labels?: Partial<Record<string, ReactNode>>;
   priorities?: Partial<Record<string, ToolbarCommandPriority>>;
   overflowLabel?: string;
 }) {
@@ -162,8 +166,10 @@ export function CommandToolbar<Context extends CommandContext>({
         width: widths.current.get(id) || 72,
         priority: priorities[id] || "primary" as ToolbarCommandPriority,
       }));
-      const trailingWidth = toolbar.querySelector<HTMLElement>(".ou-command-toolbar-trailing")?.offsetWidth || 0;
-      const next = selectToolbarOverflow(entries, Math.max(0, toolbar.clientWidth - trailingWidth - 12));
+      const leadingWidth = toolbar.querySelector<HTMLElement>(".ou-command-toolbar-leading")?.offsetWidth || 0;
+      const trailing = toolbar.querySelector<HTMLElement>(".ou-command-toolbar-trailing");
+      const trailingWidth = trailing ? Math.min(trailing.scrollWidth || trailing.offsetWidth, Math.max(0, toolbar.clientWidth - leadingWidth - 56)) : 0;
+      const next = selectToolbarOverflow(entries, Math.max(0, toolbar.clientWidth - leadingWidth - trailingWidth - 12));
       setHiddenIds((current) =>
         current.size === next.size && [...current].every((id) => next.has(id))
           ? current
@@ -172,7 +178,10 @@ export function CommandToolbar<Context extends CommandContext>({
     };
     measure();
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
-    if (root.current) observer?.observe(root.current);
+    if (root.current) {
+      observer?.observe(root.current);
+      root.current.querySelectorAll<HTMLElement>(".ou-command-toolbar-leading, .ou-command-toolbar-trailing").forEach((item) => observer?.observe(item));
+    }
     window.addEventListener("resize", measure);
     return () => {
       observer?.disconnect();
@@ -204,6 +213,7 @@ export function CommandToolbar<Context extends CommandContext>({
   };
   return (
     <div ref={root} className="ou-local-toolbar ou-command-toolbar" role="toolbar" aria-label={label}>
+      {leading && <span className="ou-command-toolbar-leading">{leading}</span>}
       {commandIds.map((id, index) =>
         id === "separator" && separatorHasCommand(index, -1) && separatorHasCommand(index, 1) ? (
           <span
@@ -220,7 +230,7 @@ export function CommandToolbar<Context extends CommandContext>({
             }}
             className={`ou-command-slot ${hiddenIds.has(id) ? "is-overflow-hidden" : ""}`}
           >
-            <CommandButton registry={registry} commandId={id} context={context} />
+            <CommandButton registry={registry} commandId={id} context={context}>{labels[id]}</CommandButton>
           </span>
         ) : null,
       )}

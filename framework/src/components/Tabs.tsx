@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { createPortal } from "react-dom";
 import { frameworkPersistence } from "../framework";
 
 export type TabItem = {
@@ -31,8 +32,11 @@ export function Tabs({
     : [];
   const [order, setOrder] = useState(initialOrder);
   const [overflow, setOverflow] = useState(false);
+  const [overflowPosition, setOverflowPosition] = useState({ left: 4, top: 4 });
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => new Set());
   const wrapRef = useRef<HTMLDivElement>(null);
+  const overflowTrigger = useRef<HTMLButtonElement>(null);
+  const overflowMenu = useRef<HTMLDivElement>(null);
   const refs = useRef<Array<HTMLButtonElement | null>>([]);
   const widths = useRef(new Map<string, number>());
   const measuredWidth = useRef(-1);
@@ -63,6 +67,21 @@ export function Tabs({
     )
       onChange(persisted);
   }, [active, items, onChange, storageKey]);
+  useEffect(() => {
+    if (!overflow) return;
+    const close = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (!overflowTrigger.current?.contains(target) && !overflowMenu.current?.contains(target)) setOverflow(false);
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOverflow(false);
+      requestAnimationFrame(() => overflowTrigger.current?.focus());
+    };
+    window.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", escape);
+    return () => { window.removeEventListener("pointerdown", close); window.removeEventListener("keydown", escape); };
+  }, [overflow]);
   const activateRelative = (index: number, direction: number) => {
     for (let step = 1; step <= ordered.length; step++) {
       const next = (index + direction * step + ordered.length) % ordered.length;
@@ -71,6 +90,28 @@ export function Tabs({
         refs.current[next]?.focus();
         return;
       }
+    }
+  };
+  const openOverflow = (focusFirst = false) => {
+    const rect = overflowTrigger.current?.getBoundingClientRect();
+    if (rect) {
+      const scale = Number.parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue("--ou-ui-scale"),
+      ) || 1;
+      const menuWidth = 210 * scale;
+      const menuHeight = Math.min(420 * scale, hiddenIds.size * 25 * scale + 8);
+      const left = Math.max(4, Math.min(rect.left, window.innerWidth - menuWidth - 4));
+      const below = rect.bottom + menuHeight <= window.innerHeight - 4;
+      const top = below
+        ? rect.bottom
+        : Math.max(4, rect.top - menuHeight);
+      setOverflowPosition({ left, top });
+    }
+    setOverflow(true);
+    if (focusFirst) {
+      requestAnimationFrame(() =>
+        overflowMenu.current?.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus(),
+      );
     }
   };
   useLayoutEffect(() => {
@@ -143,6 +184,7 @@ export function Tabs({
                 refs.current[index] = node;
               }}
               role="tab"
+              title={tab.label}
               aria-selected={active === tab.id}
               disabled={tab.disabled}
               tabIndex={active === tab.id ? 0 : -1}
@@ -181,34 +223,27 @@ export function Tabs({
           </div>
         ))}
       </div>
-      {hiddenIds.size > 0 && (
-        <div className="ou-tab-overflow">
-          <button
-            aria-label="More tabs"
-            aria-expanded={overflow}
-            onClick={() => setOverflow((value) => !value)}
-          >
-            ⋯
-          </button>
-          {overflow && (
-            <div role="menu">
-              {ordered.filter((tab) => hiddenIds.has(tab.id)).map((tab) => (
-                <button
-                  key={tab.id}
-                  role="menuitem"
-                  disabled={tab.disabled}
-                  onClick={() => {
-                    activate(tab.id);
-                    setOverflow(false);
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      {hiddenIds.size > 0 && <div className="ou-tab-overflow">
+        <button ref={overflowTrigger} aria-label="More tabs" aria-haspopup="menu" aria-expanded={overflow} onClick={() => overflow ? setOverflow(false) : openOverflow()} onKeyDown={(event) => {
+          if (event.key !== "ArrowDown") return;
+          event.preventDefault();
+          openOverflow(true);
+        }}>⋯</button>
+        {overflow && createPortal(<div ref={overflowMenu} className="ou-floating-menu ou-tab-overflow-menu" role="menu" style={overflowPosition} onKeyDown={(event) => {
+          const buttons = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
+          const current = buttons.indexOf(document.activeElement as HTMLButtonElement);
+          let next = current;
+          if (event.key === "ArrowDown") next = (current + 1 + buttons.length) % buttons.length;
+          else if (event.key === "ArrowUp") next = (current - 1 + buttons.length) % buttons.length;
+          else if (event.key === "Home") next = 0;
+          else if (event.key === "End") next = buttons.length - 1;
+          else return;
+          event.preventDefault();
+          buttons[next]?.focus();
+        }}>
+          {ordered.filter((tab) => hiddenIds.has(tab.id)).map((tab) => <button key={tab.id} role="menuitem" title={tab.label} disabled={tab.disabled} onClick={() => { activate(tab.id); setOverflow(false); }}><span className="ou-menu-check" /><span>{tab.label}</span></button>)}
+        </div>, document.body)}
+      </div>}
     </div>
   );
 }

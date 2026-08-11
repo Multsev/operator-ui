@@ -1,5 +1,14 @@
 # Releases
 
+## 1.7.2 — 2026-08-11
+
+- Version: `1.7.2`
+- Release content commit: pending
+- Annotated tag: `v1.7.2`
+- Fix: Tabs measure non-shrinking bounded labels and use a portalled overflow menu; CommandToolbar measures leading/trailing controls and supports visible label overrides; layout audits now reject root overflow, clipped tabs/actions, missing overflow destinations, mixed control heights and overflowing hand-built local command rows.
+- Verification: build and examples passed; 50 unit and 51 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
+- Known host-level limitations: browser geometry and DPI coverage do not replace native multi-monitor restoration, platform font rendering or assistive-technology testing.
+
 ## 1.7.1 — 2026-08-11
 
 - Version: `1.7.1`

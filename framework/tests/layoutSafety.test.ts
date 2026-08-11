@@ -33,4 +33,28 @@ describe("Layout Safety Contract", () => {
       "unreachable-window",
     ]);
   });
+
+  it("reports unmanaged command rows, clipped tabs and mixed toolbar density", () => {
+    document.body.innerHTML = `
+      <div class="ou-local-toolbar" role="toolbar"><button>A</button><button>B</button></div>
+      <div class="ou-core-tabs-wrap"><div role="tab">Long tab</div><div class="ou-core-tab is-overflow-hidden"><button role="tab">Hidden</button></div></div>
+    `;
+    const toolbar = document.querySelector<HTMLElement>(".ou-local-toolbar")!;
+    const controls = toolbar.querySelectorAll<HTMLElement>("button");
+    const tabs = document.querySelector<HTMLElement>(".ou-core-tabs-wrap")!;
+    const visibleTab = tabs.querySelector<HTMLElement>(":scope > [role='tab']")!;
+    Object.defineProperty(toolbar, "clientWidth", { configurable: true, value: 100 });
+    Object.defineProperty(toolbar, "scrollWidth", { configurable: true, value: 180 });
+    toolbar.getBoundingClientRect = () => box(0, 0, 100, 28);
+    controls[0].getBoundingClientRect = () => box(0, 0, 40, 24);
+    controls[1].getBoundingClientRect = () => box(42, 0, 40, 28);
+    tabs.getBoundingClientRect = () => box(0, 40, 100, 25);
+    visibleTab.getBoundingClientRect = () => box(70, 40, 60, 24);
+    expect(auditLayoutSafety(document).map((issue) => issue.rule)).toEqual(expect.arrayContaining([
+      "unmanaged-action-overflow",
+      "mixed-control-height",
+      "clipped-tab",
+      "missing-overflow",
+    ]));
+  });
 });

@@ -34,3 +34,34 @@ test("priority toolbar keeps every command reachable without clipping", async ({
   await expect(toolbar).toBeVisible();
   expect(await inspect()).toEqual({ clipped: false, small: false });
 });
+
+test("narrow tab sets preserve whole labels through a reachable overflow menu", async ({ page }) => {
+  await page.goto("/?freeze=1");
+  await page.getByRole("button", { name: "View" }).click();
+  await page.getByRole("menuitem", { name: "UI Gallery — Developer" }).click();
+  const gallery = page.getByRole("region", { name: "UI Gallery — Developer" });
+  await gallery.getByRole("button", { name: "Maximize UI Gallery — Developer" }).click();
+  const tabs = gallery.getByRole("tablist", { name: "Layout safety tabs" });
+  const overflow = tabs.locator("..").getByRole("button", { name: "More tabs" });
+  await expect(overflow).toBeVisible();
+  const visibleTabs = tabs.getByRole("tab");
+  for (const tab of await visibleTabs.all()) {
+    const geometry = await tab.evaluate((element) => ({
+      visible: getComputedStyle(element).display !== "none" && !element.closest(".is-overflow-hidden"),
+      text: element.textContent,
+      title: (element as HTMLElement).title,
+      truncated: element.scrollWidth > element.clientWidth + 1,
+    }));
+    if (!geometry.visible) continue;
+    expect(geometry.truncated ? geometry.title : geometry.text).toBeTruthy();
+  }
+  await overflow.focus();
+  await page.keyboard.press("ArrowDown");
+  const menu = page.getByRole("menu");
+  await expect(menu.getByRole("menuitem", { name: "Комментарии и история" })).toBeVisible();
+  await expect(menu.getByRole("menuitem").first()).toBeFocused();
+  await page.keyboard.press("End");
+  await expect(menu.getByRole("menuitem").last()).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(overflow).toBeFocused();
+});

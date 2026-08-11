@@ -21,6 +21,7 @@ Focus order:
 - Give `CommandToolbar` commands an `essential`, `primary` or `secondary` priority.
 - Keep at least one essential action visible; move lower-priority commands into the measured overflow menu.
 - A generic Toolbar that cannot express command overflow must remain horizontally scrollable.
+- A local row containing multiple application Commands must use `CommandToolbar`; raw `.ou-local-toolbar` composition is not a substitute for measured overflow.
 - Never use `overflow: hidden` on an action surface without an accessible overflow destination.
 - An icon-only command needs a real icon, accessible name and tooltip. A command without an icon falls back to a labelled button.
 - Interactive targets are at least 24 by 24 CSS pixels. Icons remain 12–16 pixels.
@@ -30,6 +31,7 @@ Focus order:
 - Controls in one row use the same density tier.
 - Control height must accommodate the configured font and line height.
 - Button labels remain one line, ellipsize when constrained and expose the full label with `title`.
+- Tabs keep their natural bounded width, move whole tabs into a portalled overflow menu, and expose every shortened label through `title`.
 - Explanations, errors and empty-state copy wrap with `overflow-wrap`; do not force them into a fixed-height status bar.
 - Test Russian labels and pseudo-localized labels expanded by 50 percent.
 
@@ -61,7 +63,7 @@ Every official composition defines loading, empty, offline/stale, recoverable er
 
 ## Verification
 
-Use `auditLayoutSafety` or `assertLayoutSafety` in component/Playwright tests. Exercise:
+Use `auditLayoutSafety` or `assertLayoutSafety` in component/Playwright tests. The audit checks root overflow, unmanaged local command rows, clipped tabs/actions, missing overflow destinations, mixed toolbar control heights, small targets and unreachable MDI title bars. Exercise:
 
 - host widths 800, 1024, 1280, 1440, 1920 and 2560;
 - child widths 320, 480 and 640;
