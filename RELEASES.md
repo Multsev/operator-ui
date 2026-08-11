@@ -3,7 +3,7 @@
 ## 1.7.3 — 2026-08-11
 
 - Version: `1.7.3`
-- Release content commit: pending
+- Release content commit: `116207cc36fcf4e5a08d500b23b33fd13ab9ca75`
 - Annotated tag: `v1.7.3`
 - Fix: leading command menus now share the same font-aware control-height contract as buttons, fields and overflow actions; the real toolbar fixture rejects mixed-height controls.
 - Verification: build and examples passed; 50 unit and 51 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed after the only selector-ambiguity regressions were corrected and rerun.
