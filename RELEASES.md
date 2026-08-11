@@ -1,5 +1,14 @@
 # Releases
 
+## 1.5.2 — 2026-08-11
+
+- Version: `1.5.2`
+- Release content commit: `3f5d387`
+- Annotated tag: `v1.5.2`
+- Fix: DataView preserves an existing multi-selection when a selected row opens a context menu; right-clicking an unselected row still selects that target.
+- Test stability: the CalendarWorkspace visual fixture neutralizes the real current-day accent so deterministic baselines do not change at midnight.
+- Verification: build and examples passed; 42 unit and 47 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
+
 ## 1.5.1 — 2026-08-10
 
 - Version: `1.5.1`
