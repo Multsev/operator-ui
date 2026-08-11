@@ -436,7 +436,13 @@ export function DataView<Row extends { id: string }>({
                   aria-selected={selection.isSelected(row.id)}
                   className={`ou-grid-row ${selection.isSelected(row.id) ? "is-selected" : ""} ${index === activeIndex ? "is-active" : ""}`}
                   style={{ gridTemplateColumns: template }}
-                  onMouseDown={(event) => select(event, row)}
+                  // A secondary click on an already-selected row must preserve
+                  // the complete selection for group context-menu commands.
+                  // The context-menu handler below still selects an unselected
+                  // target before opening its menu.
+                  onMouseDown={(event) => {
+                    if (event.button === 0) select(event, row);
+                  }}
                   onDoubleClick={() =>
                     expandable && doubleClickBehavior === "toggle"
                       ? setExpanded((value) => {

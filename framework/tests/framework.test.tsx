@@ -205,6 +205,23 @@ describe("unified DataView", () => {
     expect(selection.isSelected("child")).toBe(true);
     expect(selection.isSelected("root")).toBe(false);
   });
+  it("preserves a multi-selection when its row opens a context menu", () => {
+    const selection = new SelectionModel<string>();
+    const contextMenu = vi.fn();
+    const rows: NodeRow[] = [
+      { id: "first", name: "First", value: 1 },
+      { id: "second", name: "Second", value: 2 },
+      { id: "third", name: "Third", value: 3 },
+    ];
+    selection.select("first", rows.map((row) => row.id));
+    selection.select("second", rows.map((row) => row.id), { toggle: true });
+    render(<DataView rows={rows} columns={nodeColumns} selectionModel={selection} onContextMenu={contextMenu} height={120} storageKey="context-multi-selection" />);
+    const second = screen.getByText("Second").closest<HTMLElement>('[role="row"]')!;
+    fireEvent.mouseDown(second, { button: 2 });
+    fireEvent.contextMenu(second, { button: 2, clientX: 20, clientY: 30 });
+    expect(selection.getSnapshot().selected).toEqual(new Set(["first", "second"]));
+    expect(contextMenu).toHaveBeenCalledWith(expect.anything(), rows[1]);
+  });
   it("keeps a collapsed descendant selected and available to its inspector", () => {
     const selection = new SelectionModel<string>();
     const changed = vi.fn();

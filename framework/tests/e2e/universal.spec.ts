@@ -71,6 +71,9 @@ test("CalendarWorkspace composes CalendarGrid, DataView and Inspector", async ({
   await expect(
     page.getByRole("gridcell", { name: "Change window", exact: true }),
   ).toBeVisible();
+  // The real current date is useful in the component but must not make the
+  // deterministic August 2026 visual baseline change every day.
+  await page.addStyleTag({ content: ".ou-calendar-days button.is-today > span { color: inherit !important; font-weight: inherit !important; }" });
   await expect(page).toHaveScreenshot("universal-calendar-workspace.png", {
     animations: "disabled",
     maxDiffPixelRatio: 0,
