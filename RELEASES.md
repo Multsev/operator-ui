@@ -1,5 +1,14 @@
 # Releases
 
+## 1.8.0 — 2026-08-11
+
+- Version: `1.8.0`
+- Release content commit: `6f7ad35df8b69cf274984d00dbf51d1123c86fda`
+- Annotated tag: `v1.8.0`
+- Change: portable `WebPublicationSettings` contract and secure host-composition guidance for authenticated browser publication, with loopback-first defaults, revocable tokens, explicit transport boundaries and no second UI framework.
+- Verification: build and examples passed; 54 unit and 51 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
+- Known host-level limitations: Operator UI specifies the publication boundary but applications own their HTTP host and authentication; browser geometry and DPI coverage do not replace native multi-monitor, TLS/reverse-proxy or platform assistive-technology testing.
+
 ## 1.7.6 — 2026-08-11
 
 - Version: `1.7.6`
