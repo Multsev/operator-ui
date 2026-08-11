@@ -1,7 +1,13 @@
 {
   "name": "@operator-ui/framework",
   "private": true,
-  "version": "1.7.0",
+  "version": "1.7.1",
+  "description": "Compact desktop-first React UI framework with MDI and layout-safety contracts",
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Multsev/operator-ui.git"
+  },
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
