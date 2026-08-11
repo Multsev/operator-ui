@@ -3,7 +3,7 @@
 ## 1.7.4 — 2026-08-11
 
 - Version: `1.7.4`
-- Release content commit: pending
+- Release content commit: `3ece04a7d5d04401b8394f3111f89984eb7fa314`
 - Annotated tag: `v1.7.4`
 - Fix: general TextField, SearchField and Select controls now use the same font-aware height formula as command buttons; the layout-safety fixture exercises the public SearchField rather than a compact demo-only field.
 - Verification: build and examples passed; 50 unit and 51 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
