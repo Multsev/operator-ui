@@ -1,5 +1,14 @@
 # Releases
 
+## 1.7.3 — 2026-08-11
+
+- Version: `1.7.3`
+- Release content commit: pending
+- Annotated tag: `v1.7.3`
+- Fix: leading command menus now share the same font-aware control-height contract as buttons, fields and overflow actions; the real toolbar fixture rejects mixed-height controls.
+- Verification: build and examples passed; 50 unit and 51 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed after the only selector-ambiguity regressions were corrected and rerun.
+- Known host-level limitations: browser geometry and DPI coverage do not replace native multi-monitor restoration, platform font rendering or assistive-technology testing.
+
 ## 1.7.2 — 2026-08-11
 
 - Version: `1.7.2`

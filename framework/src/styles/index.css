@@ -143,8 +143,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 .ou-tab-overflow-menu button > span:nth-child(2) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ou-command-toolbar-leading { min-width: 0; flex: none; display: flex; align-items: center; gap: 2px; }
 .ou-command-toolbar-leading > * { min-width: 0; max-width: 100%; }
+.ou-command-toolbar-leading > .ou-app-menu > .ou-menu-item { height: max(var(--ou-compact-control-height), calc(1em * var(--ou-line-height) + 6px)); padding: 0 8px; border: 1px solid var(--ou-border-strong); background: var(--ou-control-bg); }
 .ou-command-toolbar-trailing { max-width: calc(100% - 56px); gap: 2px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
 .ou-layout-safety-tabs { width: 320px; max-width: 100%; }
+.ou-command-overflow > .ou-menu-item,
+.ou-toolbar-button-16,
+.ou-tab-overflow > button {
+  width: max(25px, calc(1em * var(--ou-line-height) + 6px));
+  height: max(var(--ou-compact-control-height), calc(1em * var(--ou-line-height) + 6px));
+}
 
 .ou-split-view.is-horizontal .ou-split-handle { border: 0; border-top: 1px solid var(--ou-border-strong); border-bottom: 1px solid var(--ou-border-strong); cursor: ns-resize; }
 .ou-split-view.is-horizontal .ou-split-handle::after { top: 2px; left: 50%; width: 24px; height: 1px; transform: translateX(-50%); border: 0; border-top: 1px dotted var(--ou-border-strong); }

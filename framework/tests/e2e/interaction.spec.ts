@@ -31,7 +31,7 @@ test('a menu opened inside clipped MDI content is portalled above the workspace'
   await page.getByRole('button', { name: 'View' }).click();
   await page.getByRole('menuitem', { name: 'UI Gallery — Developer' }).click();
   const gallery = page.getByRole('region', { name: 'UI Gallery — Developer' });
-  await gallery.getByRole('button', { name: 'Object' }).click();
+  await gallery.getByRole('button', { name: 'Object', exact: true }).click();
   const popup = page.getByRole('menu').filter({ has: page.getByRole('menuitem', { name: 'Add' }) });
   await expect(popup).toBeVisible();
   expect(await popup.evaluate((element) => element.parentElement === document.body)).toBe(true);
@@ -43,7 +43,7 @@ test('a menu opened inside clipped MDI content is portalled above the workspace'
   expect(box!.y + box!.height).toBeLessThanOrEqual(await page.evaluate(() => window.innerHeight));
   await page.getByRole('menuitem', { name: 'Add' }).click();
   await expect(popup).toBeHidden();
-  await expect(gallery.getByRole('button', { name: 'Object' })).toBeFocused();
+  await expect(gallery.getByRole('button', { name: 'Object', exact: true })).toBeFocused();
 });
 
 test('child window moves, resizes to its minimum and persists', async ({ page }) => {

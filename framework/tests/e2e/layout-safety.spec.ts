@@ -18,6 +18,13 @@ test("priority toolbar keeps every command reachable without clipping", async ({
     const bounds = element.getBoundingClientRect();
     const controls = [...element.querySelectorAll<HTMLElement>("button, input, select")]
       .filter((control) => getComputedStyle(control).display !== "none" && !control.closest(".is-overflow-hidden"))
+    const geometry = controls.map((control) => ({
+      name: control.getAttribute("aria-label") || control.textContent || control.tagName,
+      height: control.getBoundingClientRect().height,
+      cssHeight: getComputedStyle(control).height,
+      fontSize: getComputedStyle(control).fontSize,
+    })).filter((item) => item.height > 0);
+    const heights = geometry.map((item) => item.height);
     return {
       clipped: controls.some((control) => {
         const rect = control.getBoundingClientRect();
@@ -27,12 +34,20 @@ test("priority toolbar keeps every command reachable without clipping", async ({
         const rect = control.getBoundingClientRect();
         return rect.width < 24 || rect.height < 24;
       }),
+      heights,
+      geometry,
     };
   });
-  expect(await inspect()).toEqual({ clipped: false, small: false });
+  const assertSafe = async () => {
+    const result = await inspect();
+    expect(result.clipped).toBe(false);
+    expect(result.small).toBe(false);
+    expect(Math.max(...result.heights) - Math.min(...result.heights), JSON.stringify(result.geometry)).toBeLessThanOrEqual(2);
+  };
+  await assertSafe();
   await page.evaluate(() => document.documentElement.style.setProperty("--ou-font-size", "20px"));
   await expect(toolbar).toBeVisible();
-  expect(await inspect()).toEqual({ clipped: false, small: false });
+  await assertSafe();
 });
 
 test("narrow tab sets preserve whole labels through a reachable overflow menu", async ({ page }) => {
