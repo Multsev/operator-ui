@@ -1,6 +1,6 @@
 # Operator UI manifest
 
-Version: **1.7.5**
+Version: **1.8.0**
 Canonical framework: [`./framework/`](./framework/)
 Canonical TypeScript entry: [`./framework/src/index.ts`](./framework/src/index.ts)
 Canonical tokens: [`./framework/src/tokens/tokens.css`](./framework/src/tokens/tokens.css)
@@ -42,6 +42,7 @@ ObjectList · MasterDetail · TreeDetail · TabbedInspector · Settings · Calen
 - Commands and selection: `references/commands.md`, `references/selection.md`
 - Data and async work: `references/data-source.md`, `references/async.md`
 - Persistence: `references/persistence.md`
+- Authenticated browser publication: `references/web-publication.md`, `WebPublicationSettings`
 - Interaction/responsiveness: `references/interaction.md`, `references/responsive-desktop.md`
 - Layout invariants and automated audit: `references/layout-safety.md`, `auditLayoutSafety`
 - Verification: `references/testing.md`

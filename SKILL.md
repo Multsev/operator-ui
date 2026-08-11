@@ -212,6 +212,14 @@ Provide stable component IDs. Validate old state and fail safely. Do not invent 
 
 Read `references/persistence.md` before persisting UI state.
 
+## Web publication rule
+
+Treat browser publication as a host capability, not a visual primitive. Reuse the same application services and allowlisted Commands through a second authenticated transport; never expose a native bridge, filesystem API, credential API or arbitrary method dispatcher to the browser.
+
+Default to loopback-only publication. Require an explicit security decision before binding to a LAN or public interface. Keep access tokens outside URLs sent to the server, logs, localStorage and application source; use an URL fragment only for one-time browser bootstrap, then remove it and retain the token in session storage. Require TLS or a trusted reverse proxy outside loopback.
+
+Compose publication controls with the Settings pattern and existing Choice, Button and Status primitives. Persist enabled/scope/port separately from the secret. Show the current address, running/error state, copy-address action and revoke-sessions action. Read `references/web-publication.md` before adding browser access or a web transport.
+
 ## Density and visual language
 
 Consume `framework/src/tokens/tokens.css` and existing component classes. Do not invent arbitrary colors, spacing, radii, typography, row heights, control heights or shadows.

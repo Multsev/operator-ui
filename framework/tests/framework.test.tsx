@@ -14,7 +14,20 @@ import {
   PersistenceStore,
   SelectionModel,
   selectionIntent,
+  normalizeWebPublicationSettings,
+  webPublicationOrigin,
 } from "../src/framework";
+
+describe("Web publication settings", () => {
+  it("defaults to safe loopback and validates the port", () => {
+    expect(normalizeWebPublicationSettings({ enabled: true, scope: "local", port: 80 })).toEqual({
+      enabled: true,
+      scope: "local",
+      port: 8765,
+    });
+    expect(webPublicationOrigin({ enabled: true, scope: "network", port: 9443 }, "workbox.local")).toBe("https://workbox.local:9443");
+  });
+});
 
 describe("SelectionModel", () => {
   it("supports single, toggle, range, select all and clear", () => {

@@ -3,3 +3,4 @@ export * from './commands';
 export * from './dataSource';
 export * from './persistence';
 export * from './selection';
+export * from './webPublication';
