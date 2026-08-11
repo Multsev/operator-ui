@@ -3,10 +3,10 @@
 ## 1.6.0 — 2026-08-11
 
 - Version: `1.6.0`
-- Release content commit: pending
+- Release content commit: `0b217e95004a9e5883e3572a9bc7f379f3a7c164`
 - Annotated tag: `v1.6.0`
 - Change: DataView exposes selection-safe row drag-and-drop callbacks with application-owned payload validation and a canonical drop-target state.
-- Verification: pending.
+- Verification: build and examples passed; 43 unit and 47 Playwright interaction/visual/DPI/accessibility/performance/release-artifact tests passed.
 
 ## 1.5.2 — 2026-08-11
 
